@@ -1,6 +1,6 @@
 ## Ittehadsteels
 
-for ittehad
+for ittehadsteel
 
 #### License
 

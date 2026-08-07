@@ -1,7 +1,7 @@
 app_name = "ittehadsteels"
 app_title = "Ittehadsteels"
 app_publisher = "Safdar Ali"
-app_description = "for ittehad"
+app_description = "for ittehadsteel"
 app_email = "safdar211@gmail.com"
 app_license = "mit"
 
