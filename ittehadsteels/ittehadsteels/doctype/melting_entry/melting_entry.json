@@ -1,0 +1,297 @@
+{
+ "actions": [],
+ "autoname": "format:ME-{heat_no}",
+ "creation": "2026-08-07 00:00:00",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_general",
+  "heat_no",
+  "posting_date",
+  "shift",
+  "column_break_gen1",
+  "start_time",
+  "end_time",
+  "total_melting_time",
+  "column_break_gen2",
+  "production_supervisor",
+  "lining_name",
+  "batch_status",
+  "section_break_gen2",
+  "remarks",
+  "section_break_finish",
+  "finish_items",
+  "section_break_raw_material",
+  "raw_material_consumption",
+  "section_break_summary",
+  "total_input_weight",
+  "total_alloy_weight",
+  "total_consumption_weight",
+  "column_break_summary1",
+  "power_units",
+  "gas_consumption",
+  "section_break_lab",
+  "c_percent",
+  "mn_percent",
+  "si_percent",
+  "p_percent",
+  "column_break_lab1",
+  "s_percent",
+  "cu_percent",
+  "cr_percent",
+  "ni_percent",
+  "section_break_lab2",
+  "lab_remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_general",
+   "fieldtype": "Section Break",
+   "label": "General Information"
+  },
+  {
+   "fieldname": "heat_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Heat No",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Posting Date"
+  },
+  {
+   "fieldname": "shift",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Shift",
+   "options": "Shift",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_gen1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "start_time",
+   "fieldtype": "Time",
+   "label": "Start Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_time",
+   "fieldtype": "Time",
+   "label": "End Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "total_melting_time",
+   "fieldtype": "Duration",
+   "label": "Total Melting Time",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_gen2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "production_supervisor",
+   "fieldtype": "Link",
+   "label": "Production Supervisor",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "lining_name",
+   "fieldtype": "Link",
+   "label": "Lining Name",
+   "options": "Workstation"
+  },
+  {
+   "default": "Active",
+   "fieldname": "batch_status",
+   "fieldtype": "Select",
+   "label": "Batch Status",
+   "options": "Active\nInactive"
+  },
+  {
+   "fieldname": "section_break_gen2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "section_break_finish",
+   "fieldtype": "Section Break",
+   "label": "Finish Items"
+  },
+  {
+   "fieldname": "finish_items",
+   "fieldtype": "Table",
+   "label": "Finish Items",
+   "options": "Melting Finish Item"
+  },
+  {
+   "fieldname": "section_break_raw_material",
+   "fieldtype": "Section Break",
+   "label": "Raw Material Consumption"
+  },
+  {
+   "fieldname": "raw_material_consumption",
+   "fieldtype": "Table",
+   "label": "Raw Material Consumption",
+   "options": "Melting Raw Material"
+  },
+  {
+   "fieldname": "section_break_summary",
+   "fieldtype": "Section Break",
+   "label": "Summary"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_input_weight",
+   "fieldtype": "Float",
+   "label": "Total Input Weight",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "total_alloy_weight",
+   "fieldtype": "Float",
+   "label": "Total Alloy Weight",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "total_consumption_weight",
+   "fieldtype": "Float",
+   "label": "Total Consumption Weight",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_summary1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "power_units",
+   "fieldtype": "Float",
+   "label": "Power Units"
+  },
+  {
+   "fieldname": "gas_consumption",
+   "fieldtype": "Float",
+   "label": "Gas Consumption"
+  },
+  {
+   "fieldname": "section_break_lab",
+   "fieldtype": "Section Break",
+   "label": "Lab Details"
+  },
+  {
+   "fieldname": "c_percent",
+   "fieldtype": "Float",
+   "label": "C%",
+   "precision": "3"
+  },
+  {
+   "fieldname": "mn_percent",
+   "fieldtype": "Float",
+   "label": "Mn%",
+   "precision": "3"
+  },
+  {
+   "fieldname": "si_percent",
+   "fieldtype": "Float",
+   "label": "Si%",
+   "precision": "3"
+  },
+  {
+   "fieldname": "p_percent",
+   "fieldtype": "Float",
+   "label": "P%",
+   "precision": "3"
+  },
+  {
+   "fieldname": "column_break_lab1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "s_percent",
+   "fieldtype": "Float",
+   "label": "S%",
+   "precision": "3"
+  },
+  {
+   "fieldname": "cu_percent",
+   "fieldtype": "Float",
+   "label": "Cu%",
+   "precision": "3"
+  },
+  {
+   "fieldname": "cr_percent",
+   "fieldtype": "Float",
+   "label": "Cr%",
+   "precision": "3"
+  },
+  {
+   "fieldname": "ni_percent",
+   "fieldtype": "Float",
+   "label": "Ni%",
+   "precision": "3"
+  },
+  {
+   "fieldname": "section_break_lab2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "lab_remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-08-07 16:12:40.104661",
+ "modified_by": "Administrator",
+ "module": "Ittehadsteels",
+ "name": "Melting Entry",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

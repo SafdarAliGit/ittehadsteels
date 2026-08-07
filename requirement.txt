@@ -1,0 +1,192 @@
+You are an expert ERPNext and Frappe Framework (v15) developer.
+
+The app **ittehadsteels** already exists.
+
+Create the following DocTypes with proper Frappe architecture and ERPNext best practices.
+
+## Requirements
+
+- Do NOT create a new app.
+- Do NOT generate raw JSON files separately.
+- Create proper Frappe DocTypes.
+- Child tables must be implemented as actual Child DocTypes (`Is Child Table = 1`).
+- Link the child tables to the parent using **Table** fields.
+- Generate only the Python controller (.py), JavaScript controller (.js), and any necessary business logic.
+- Follow Frappe v15 coding standards.
+
+---
+
+# Parent DocType
+
+## DocType Name
+
+Melting Entry
+
+### General Information
+
+| Label | Field Type | Options | Notes |
+|--------|------------|---------|------|
+| Heat No | Data | | Mandatory, Unique |
+| Posting Date | Date | | Default: Today |
+| Shift | Link | Shift | Mandatory |
+| Start Time | Time | | Mandatory |
+| End Time | Time | | Mandatory |
+| Total Melting Time | Duration (or Read Only Data) | | Auto Calculate |
+| Production Supervisor | Link | Employee | |
+| Lining Name | Link | Workstation | |
+| Batch Status | Select | Active\nInactive | Default Active |
+| Remarks | Small Text | | |
+
+---
+
+## Child Table
+
+### DocType Name
+
+Melting Finish Item
+
+Enable **Is Child Table**.
+
+Add the following fields:
+
+| Label | Field Type | Options |
+|--------|------------|---------|
+| Finish Item | Link | Item |
+| Item Grade | Data (Read Only) | Fetch Item Group |
+| Production Type | Select | Primary, Secondary, Rejected |
+| Qty (KG) | Float | |
+| Qty (PCS) | Int | |
+
+Requirements
+
+- Only allow finished product items.
+- Apply Item filters.
+- Automatically fetch Item Group into Item Grade.
+
+Add this child table to **Melting Entry** using a **Table** field named:
+
+Finish Items
+
+---
+
+## Child Table
+
+### DocType Name
+
+Melting Raw Material
+
+Enable **Is Child Table**.
+
+Fields
+
+| Label | Field Type | Options |
+|--------|------------|---------|
+| Item Code | Link | Item |
+| Item Name | Data (Read Only) | Fetch from Item |
+| Warehouse | Link | Warehouse |
+| Qty (KG) | Float | |
+| Rate | Currency | |
+| Amount | Currency (Read Only) | Qty × Rate |
+
+Requirements
+
+Automatically calculate Amount.
+
+Add this child table to **Melting Entry** using a **Table** field named:
+
+Raw Material Consumption
+
+---
+
+# Summary Section
+
+Create a section named **Summary**.
+
+Fields
+
+- Total Input Weight (Read Only Float)
+- Total Alloy Weight (Read Only Float)
+- Total Consumption Weight (Read Only Float)
+- Power Units (Float)
+- Gas Consumption (Float)
+
+Business Logic
+
+- Total Consumption Weight = Sum of Qty (KG) from Raw Material Consumption.
+- Total Alloy Weight = Sum of quantities where Item Group = Alloy.
+- Total Input Weight = Total Consumption Weight.
+
+---
+
+# Lab Details
+
+Create another section named **Lab Details**.
+
+Fields
+
+- C%
+- Mn%
+- Si%
+- P%
+- S%
+- Cu%
+- Cr%
+- Ni%
+
+All should be Float with precision 3.
+
+Add:
+
+- Remarks (Small Text)
+
+---
+
+# Validations
+
+Implement client-side (JavaScript) and server-side (Python) validations.
+
+Validate:
+
+- Heat No must be unique.
+- End Time must be greater than Start Time.
+- Quantity cannot be zero.
+- Negative quantities are not allowed.
+- Duplicate Finish Items are not allowed.
+- Duplicate Raw Material Items are not allowed.
+
+Automatically calculate:
+
+- Total Melting Time
+- Amount
+- Summary totals
+
+---
+
+# UI Layout
+
+Organize the form into these sections:
+
+1. General Information
+2. Finish Items
+3. Raw Material Consumption
+4. Summary
+5. Lab Details
+
+Use Section Breaks and Column Breaks for a clean ERPNext interface.
+
+---
+
+# Deliverables
+
+Generate:
+
+- Parent DocType: Melting Entry
+- Child DocType: Melting Finish Item
+- Child DocType: Melting Raw Material
+- Python controllers
+- JavaScript controllers
+- Fetch logic
+- Validation logic
+- Auto-calculation logic
+
+Do not generate separate child table JSON files. Create proper Frappe Child DocTypes (`Is Child Table = 1`) and link them to the parent using Table fields.
