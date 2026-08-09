@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "format:ME-{heat_no}",
+ "autoname": "H-.{posting_date}.-.####",
  "creation": "2026-08-07 00:00:00",
  "default_view": "List",
  "doctype": "DocType",
@@ -8,7 +8,6 @@
  "engine": "InnoDB",
  "field_order": [
   "section_break_general",
-  "heat_no",
   "posting_date",
   "shift",
   "column_break_gen1",
@@ -19,14 +18,17 @@
   "production_supervisor",
   "lining_name",
   "batch_status",
-  "section_break_gen2",
-  "remarks",
   "section_break_finish",
   "finish_items",
+  "section_break_gen2",
+  "total_output_weight",
   "section_break_raw_material",
   "raw_material_consumption",
   "section_break_summary",
   "total_input_weight",
+  "total_input_amount",
+  "finish_rate",
+  "column_break_eb7n",
   "total_alloy_weight",
   "total_consumption_weight",
   "column_break_summary1",
@@ -43,21 +45,13 @@
   "cr_percent",
   "ni_percent",
   "section_break_lab2",
-  "lab_remarks"
+  "remarks"
  ],
  "fields": [
   {
    "fieldname": "section_break_general",
    "fieldtype": "Section Break",
    "label": "General Information"
-  },
-  {
-   "fieldname": "heat_no",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Heat No",
-   "reqd": 1,
-   "unique": 1
   },
   {
    "default": "Today",
@@ -252,14 +246,34 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "lab_remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks"
+   "default": "0",
+   "fieldname": "total_output_weight",
+   "fieldtype": "Float",
+   "label": "Total Output Weight ",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "total_input_amount",
+   "fieldtype": "Currency",
+   "label": "Total Input Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_eb7n",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "finish_rate",
+   "fieldtype": "Currency",
+   "label": "Finish Rate",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-08-07 16:12:40.104661",
+ "modified": "2026-08-09 13:56:12.859730",
  "modified_by": "Administrator",
  "module": "Ittehadsteels",
  "name": "Melting Entry",

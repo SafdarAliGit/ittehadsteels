@@ -1,11 +1,11 @@
 {
  "actions": [],
- "allow_rename": 0,
- "creation": "2026-08-07 00:00:00.000000",
+ "creation": "2026-08-07 00:00:00",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "product_group",
   "finish_item",
   "item_grade",
   "production_type",
@@ -54,17 +54,24 @@
    "in_list_view": 1,
    "label": "Qty (PCS)",
    "non_negative": 1
+  },
+  {
+   "fieldname": "product_group",
+   "fieldtype": "Link",
+   "label": "Product Group",
+   "options": "Item Group"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-08-07 00:00:00.000000",
+ "modified": "2026-08-09 11:03:54.249176",
  "modified_by": "Administrator",
  "module": "Ittehadsteels",
  "name": "Melting Finish Item",
  "owner": "Administrator",
  "permissions": [],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

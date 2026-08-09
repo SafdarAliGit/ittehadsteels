@@ -190,3 +190,8 @@ Generate:
 - Auto-calculation logic
 
 Do not generate separate child table JSON files. Create proper Frappe Child DocTypes (`Is Child Table = 1`) and link them to the parent using Table fields.
+
+
+
+
+sudo supervisorctl restart all

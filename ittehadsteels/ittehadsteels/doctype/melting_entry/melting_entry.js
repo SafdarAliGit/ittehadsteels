@@ -2,15 +2,32 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Melting Entry", {
-	onload: function (frm) {
-		frm.set_query("finish_item", "finish_items", function () {
+	refresh: function (frm) {
+		frm.set_query("product_group", "finish_items", function () {
 			return {
 				filters: {
-					item_group: "Products",
+					name: ["descendants of", "Products"],
+				},
+			};
+		});
+		frm.set_query("item_code", "raw_material_consumption", function (doc, cdt, cdn) {
+			return {
+				filters: {
+					item_group: ["descendants of", "Raw Material"],
+				},
+			};
+		});
+
+		frm.set_query("finish_item", "finish_items", function (frm, cdt, cdn) {
+			grid_row = locals[cdt][cdn];
+			return {
+				filters: {
+					item_group: grid_row.product_group,
 				},
 			};
 		});
 	},
+
 
 	start_time: function (frm) {
 		frm.trigger("calculate_total_melting_time");
@@ -42,6 +59,8 @@ frappe.ui.form.on("Melting Entry", {
 		frm.set_value("total_consumption_weight", total_consumption);
 		frm.set_value("total_input_weight", total_consumption);
 	},
+		
+
 
 	validate: function (frm) {
 		if (
@@ -88,3 +107,93 @@ frappe.ui.form.on("Melting Entry", {
 		});
 	},
 });
+
+frappe.ui.form.on("Melting Finish Item", {
+
+	qty_kg: function (frm, cdt, cdn) {
+		calculate_total_qty_kg(frm, cdt, cdn)
+	},
+	
+});
+
+function calculate_total_qty_kg(frm, cdt, cdn) {
+	let total_qty_kg = 0;
+	let finish_rate = 0;
+	(frm.doc.finish_items || []).forEach((row) => {
+		total_qty_kg += flt(row.qty_kg) || 0;
+	});
+	frm.set_value("total_output_weight", total_qty_kg);
+
+	finish_rate = frm.doc.total_input_amount / total_qty_kg || 0;
+	frm.set_value("finish_rate", finish_rate);
+}
+
+frappe.ui.form.on("Melting Raw Material", {
+	qty_kg: function (frm, cdt, cdn) {
+		calculate_amount(frm, cdt, cdn)
+		calculate_total_qty_kg_raw_material(frm, cdt, cdn);
+		calculate_total_amount_raw_material(frm, cdt, cdn);
+	},
+
+	rate: function (frm, cdt, cdn) {
+		calculate_amount(frm, cdt, cdn);
+		calculate_total_amount_raw_material(frm, cdt, cdn);
+	},
+	item_code: function (frm, cdt, cdn) {
+		raw_item_valuation_rate(frm, cdt, cdn);
+	},
+
+	warehouse: function (frm, cdt, cdn) {
+		raw_item_valuation_rate(frm, cdt, cdn);
+	},
+
+});
+
+function calculate_amount(frm, cdt, cdn) {
+	let row = locals[cdt][cdn];
+	frappe.model.set_value(cdt, cdn, "amount", flt(row.qty_kg) * flt(row.rate));
+	
+}
+
+function calculate_total_qty_kg_raw_material(frm, cdt, cdn) {
+	let total_qty_kg = 0;
+	(frm.doc.raw_material_consumption || []).forEach((row) => {
+		total_qty_kg += flt(row.qty_kg) || 0;
+	});
+	frm.set_value("total_input_weight", total_qty_kg);
+}
+
+function calculate_total_amount_raw_material(frm, cdt, cdn) {
+	let total_amount = 0;
+	let finish_rate = 0;
+	(frm.doc.raw_material_consumption || []).forEach((row) => {
+		total_amount += flt(row.amount) || 0;
+	});
+	frm.set_value("total_input_amount", total_amount);
+
+	finish_rate = total_amount / frm.doc.total_output_weight || 0;
+	frm.set_value("finish_rate", finish_rate);
+}
+	
+
+function raw_item_valuation_rate(frm, cdt, cdn) {
+	const row = locals[cdt][cdn];
+
+	if (!row.item_code || !row.warehouse) {
+		return;
+	}
+
+	frappe.call({
+		method: "ittehadsteels.ittehadsteels.overrides.raw_item_valuation_rate.raw_item_valuation_rate",
+		args: {
+			item_code: row.item_code,
+			warehouse: row.warehouse,
+		},
+		callback: function (r) {
+			if (!r.message) {
+				return;
+			}
+			frappe.model.set_value(cdt, cdn, "rate", flt(r.message));
+		},
+	});
+}

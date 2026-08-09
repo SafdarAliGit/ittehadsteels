@@ -9,23 +9,16 @@ from frappe.utils import flt, get_timedelta
 
 class MeltingEntry(Document):
 	def validate(self):
-		self.validate_heat_no()
-		self.validate_times()
-		self.validate_finish_items()
-		self.validate_raw_materials()
-		self.calculate_raw_material_amounts()
-		self.calculate_summary_totals()
+		# self.validate_times()
+		# self.validate_finish_items()
+		# self.validate_raw_materials()
+		# self.calculate_raw_material_amounts()
+		# self.calculate_summary_totals()
+		self.calculate_total_qty_kg()
+		self.calculate_total_qty_kg_raw_material()
+		self.calculate_total_amount_raw_material()
 
-	def validate_heat_no(self):
-		if not self.heat_no:
-			return
-
-		filters = {"heat_no": self.heat_no}
-		if not self.is_new():
-			filters["name"] = ["!=", self.name]
-
-		if frappe.db.exists("Melting Entry", filters):
-			frappe.throw(_("Heat No {0} already exists").format(self.heat_no))
+	
 
 	def validate_times(self):
 		if not (self.start_time and self.end_time):
@@ -96,3 +89,21 @@ class MeltingEntry(Document):
 		self.total_consumption_weight = total_consumption
 		self.total_alloy_weight = total_alloy
 		self.total_input_weight = total_consumption
+
+	def calculate_total_qty_kg(self):
+		total_qty_kg = 0
+		for row in self.get("finish_items"):
+			total_qty_kg += flt(row.qty_kg) or 0
+		self.total_output_weight = total_qty_kg
+
+	def calculate_total_qty_kg_raw_material(self):
+		total_qty_kg = 0
+		for row in self.get("raw_material_consumption"):
+			total_qty_kg += flt(row.qty_kg) or 0
+		self.total_input_weight = total_qty_kg
+
+	def calculate_total_amount_raw_material(self):
+		total_amount = 0
+		for row in self.get("raw_material_consumption"):
+			total_amount += flt(row.amount) or 0
+		self.total_input_amount = total_amount
