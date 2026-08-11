@@ -1,0 +1,116 @@
+[
+ {
+  "doctype": "Custom Field",
+  "name": "Delivery Note Item-weight_billing_details_section",
+  "dt": "Delivery Note Item",
+  "fieldname": "weight_billing_details_section",
+  "label": "Weight & Billing Details",
+  "fieldtype": "Section Break",
+  "insert_after": "column_break_fguf",
+  "collapsible": 1
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Delivery Note Item-billing_quantity_by",
+  "dt": "Delivery Note Item",
+  "fieldname": "billing_quantity_by",
+  "label": "Billing Quantity By",
+  "fieldtype": "Select",
+  "options": "\nDelivered Weight\nReceiver Weight\nAverage Weight",
+  "insert_after": "weight_billing_details_section"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Delivery Note Item-second_weight",
+  "dt": "Delivery Note Item",
+  "fieldname": "second_weight",
+  "label": "Second Weight",
+  "fieldtype": "Float",
+  "description": "Weight Of Filled Container",
+  "insert_after": "billing_quantity_by"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Delivery Note Item-first_weight",
+  "dt": "Delivery Note Item",
+  "fieldname": "first_weight",
+  "label": "First Weight",
+  "fieldtype": "Float",
+  "description": "Weight Of Empty Container",
+  "insert_after": "second_weight"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Delivery Note Item-net_weight",
+  "dt": "Delivery Note Item",
+  "fieldname": "net_weight",
+  "label": "Net Weight",
+  "fieldtype": "Float",
+  "read_only": 1,
+  "default": "0",
+  "description": "Second Weight - First Weight",
+  "insert_after": "first_weight"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Delivery Note Item-column_break_weight_receiver",
+  "dt": "Delivery Note Item",
+  "fieldname": "column_break_weight_receiver",
+  "fieldtype": "Column Break",
+  "insert_after": "net_weight"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Delivery Note Item-gross_weight_by_receiver",
+  "dt": "Delivery Note Item",
+  "fieldname": "gross_weight_by_receiver",
+  "label": "Gross Weight By Receiver",
+  "fieldtype": "Float",
+  "insert_after": "column_break_weight_receiver"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Delivery Note Item-tare_weight_by_receiver",
+  "dt": "Delivery Note Item",
+  "fieldname": "tare_weight_by_receiver",
+  "label": "Tare Weight By Receiver",
+  "fieldtype": "Float",
+  "insert_after": "gross_weight_by_receiver"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Delivery Note Item-net_weight_by_receiver",
+  "dt": "Delivery Note Item",
+  "fieldname": "net_weight_by_receiver",
+  "label": "Net Weight By Receiver",
+  "fieldtype": "Float",
+  "read_only": 1,
+  "default": "0",
+  "description": "Tare Weight By Receiver - Gross Weight By Receiver",
+  "insert_after": "tare_weight_by_receiver"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Delivery Note Item-average_weight",
+  "dt": "Delivery Note Item",
+  "fieldname": "average_weight",
+  "label": "Average Weight",
+  "fieldtype": "Float",
+  "read_only": 1,
+  "default": "0",
+  "description": "(Net Weight - Net Weight By Receiver)/2",
+  "insert_after": "net_weight_by_receiver"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Delivery Note Item-weight_difference",
+  "dt": "Delivery Note Item",
+  "fieldname": "weight_difference",
+  "label": "Weight Difference",
+  "fieldtype": "Float",
+  "read_only": 1,
+  "default": "0",
+  "description": "Net Weight - Net Weight By Receiver",
+  "insert_after": "average_weight"
+ }
+]
