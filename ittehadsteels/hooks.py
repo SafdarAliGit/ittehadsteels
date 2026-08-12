@@ -177,7 +177,7 @@ doctype_js = {"Delivery Note": "public/js/dn.js"}
 fixtures = [
 	{
 		"doctype": "Custom Field",
-		"filters": [["dt", "=", "Delivery Note Item"]],
+		"filters": [["dt", "in", ["Delivery Note Item", "Batch"]]],
 	}
 ]
 

@@ -1,0 +1,238 @@
+{
+ "actions": [],
+ "autoname": "RE-.{date}.-.####",
+ "creation": "2026-08-12 00:00:00",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_general",
+  "date",
+  "column_break_gen1",
+  "line_no",
+  "column_break_gen2",
+  "supervisor",
+  "column_break_vnha",
+  "employee_name",
+  "section_break_raw",
+  "raw_items",
+  "section_break_wa7z",
+  "total_issue_qty",
+  "column_break_raw2",
+  "total_raw_material_amount",
+  "section_break_finish",
+  "finish_items",
+  "section_break_kzoz",
+  "total_finish_qty",
+  "section_break_by_products",
+  "finish_by_products",
+  "section_break_consumables",
+  "consumables",
+  "section_break_cost",
+  "cost_per_kg",
+  "column_break_cost1",
+  "cost_per_ton",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_general",
+   "fieldtype": "Section Break",
+   "label": "General Details"
+  },
+  {
+   "default": "Today",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_gen1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "line_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Line No",
+   "options": "Workstation",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_gen2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supervisor",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Supervisor",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "supervisor.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_raw",
+   "fieldtype": "Section Break",
+   "label": "Raw Items"
+  },
+  {
+   "fieldname": "raw_items",
+   "fieldtype": "Table",
+   "label": "Raw Items",
+   "options": "Raw Items"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_issue_qty",
+   "fieldtype": "Float",
+   "label": "Total Issue Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_raw2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_raw_material_amount",
+   "fieldtype": "Currency",
+   "label": "Total Raw Material Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_finish",
+   "fieldtype": "Section Break",
+   "label": "Finish Items"
+  },
+  {
+   "fieldname": "finish_items",
+   "fieldtype": "Table",
+   "label": "Finish Items",
+   "options": "Finish Items"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_finish_qty",
+   "fieldtype": "Float",
+   "label": "Total Finish Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_by_products",
+   "fieldtype": "Section Break",
+   "label": "Finish By Products"
+  },
+  {
+   "fieldname": "finish_by_products",
+   "fieldtype": "Table",
+   "label": "Finish By Products",
+   "options": "Finish By Products"
+  },
+  {
+   "fieldname": "section_break_consumables",
+   "fieldtype": "Section Break",
+   "label": "Consumables"
+  },
+  {
+   "fieldname": "consumables",
+   "fieldtype": "Table",
+   "label": "Consumables",
+   "options": "Consumables"
+  },
+  {
+   "fieldname": "section_break_cost",
+   "fieldtype": "Section Break",
+   "label": "Cost Summary"
+  },
+  {
+   "default": "0",
+   "description": "Total Raw Material Amount / Total Finish Qty",
+   "fieldname": "cost_per_kg",
+   "fieldtype": "Currency",
+   "label": "Cost Per Kg",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_cost1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Cost Per Kg / 1000",
+   "fieldname": "cost_per_ton",
+   "fieldtype": "Currency",
+   "label": "Cost Per Ton",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_wa7z",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_kzoz",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_vnha",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Rolling Entry",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-08-12 14:59:26.431305",
+ "modified_by": "Administrator",
+ "module": "Ittehadsteels",
+ "name": "Rolling Entry",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

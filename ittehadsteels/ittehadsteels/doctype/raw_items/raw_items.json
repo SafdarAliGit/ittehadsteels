@@ -1,0 +1,133 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-08-12 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item_code",
+  "heat_no",
+  "length",
+  "guage",
+  "grade",
+  "warehouse",
+  "available_qty",
+  "available_pcs",
+  "issue_qty",
+  "rate",
+  "amount"
+ ],
+ "fields": [
+  {
+   "columns": 2,
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Code",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "heat_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Heat No",
+   "options": "Batch",
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "fetch_from": "heat_no.length",
+   "fieldname": "length",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Length",
+   "options": "Length",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fetch_from": "heat_no.guage",
+   "fieldname": "guage",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Guage",
+   "options": "Guage",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fetch_from": "heat_no.grade",
+   "fieldname": "grade",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Grade",
+   "read_only": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Warehouse",
+   "options": "Warehouse",
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "fetch_from": "heat_no.batch_qty",
+   "fieldname": "available_qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Available Qty",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fetch_from": "heat_no.qty_in_pcs",
+   "fieldname": "available_pcs",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Available Pcs",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "issue_qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Issue Qty",
+   "non_negative": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "rate",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Rate",
+   "non_negative": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-08-12 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Ittehadsteels",
+ "name": "Raw Items",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -112,5 +112,44 @@
   "default": "0",
   "description": "Net Weight - Net Weight By Receiver",
   "insert_after": "average_weight"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Batch-grade",
+  "dt": "Batch",
+  "fieldname": "grade",
+  "label": "Grade",
+  "fieldtype": "Data",
+  "insert_after": "stock_uom"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Batch-length",
+  "dt": "Batch",
+  "fieldname": "length",
+  "label": "Length",
+  "fieldtype": "Link",
+  "options": "Length",
+  "insert_after": "grade"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Batch-guage",
+  "dt": "Batch",
+  "fieldname": "guage",
+  "label": "Guage",
+  "fieldtype": "Link",
+  "options": "Guage",
+  "insert_after": "length"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Batch-qty_in_pcs",
+  "dt": "Batch",
+  "fieldname": "qty_in_pcs",
+  "label": "Qty In Pcs",
+  "fieldtype": "Int",
+  "default": "0",
+  "insert_after": "guage"
  }
 ]
