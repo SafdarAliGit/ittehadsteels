@@ -11,7 +11,39 @@ frappe.ui.form.on("Rolling Entry", {
 			};
 		});
 	},
+
+	melting_entry: function (frm) {
+		get_raw_items_from_melting_entry(frm);
+	},
 });
+
+function get_raw_items_from_melting_entry(frm) {
+	if (!frm.doc.melting_entry) {
+		return;
+	}
+
+	frappe.call({
+		method:
+			"ittehadsteels.ittehadsteels.overrides.get_raw_items_from_melting_entry.get_raw_items_from_melting_entry",
+		args: {
+			melting_entry: frm.doc.melting_entry,
+		},
+		callback: function (r) {
+			if (!r.message) {
+				return;
+			}
+
+			frm.clear_table("raw_items");
+			r.message.forEach((raw_item) => {
+				const row = frm.add_child("raw_items");
+				frappe.model.set_value(row.doctype, row.name, raw_item);
+			});
+			frm.refresh_field("raw_items");
+			calculate_total_issue_qty(frm);
+			calculate_total_raw_material_amount(frm);
+		},
+	});
+}
 
 frappe.ui.form.on("Raw Items", {
 	item_code: function (frm, cdt, cdn) {

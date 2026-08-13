@@ -15,6 +15,8 @@
   "supervisor",
   "column_break_vnha",
   "employee_name",
+  "column_break_v9hs",
+  "melting_entry",
   "section_break_raw",
   "raw_items",
   "section_break_wa7z",
@@ -195,12 +197,22 @@
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
+  },
+  {
+   "fieldname": "column_break_v9hs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "melting_entry",
+   "fieldtype": "Link",
+   "label": "Melting Entry",
+   "options": "Melting Entry"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-08-12 14:59:26.431305",
+ "modified": "2026-08-12 22:25:03.998209",
  "modified_by": "Administrator",
  "module": "Ittehadsteels",
  "name": "Rolling Entry",

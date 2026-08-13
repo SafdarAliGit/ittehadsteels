@@ -10,7 +10,8 @@
   "item_grade",
   "production_type",
   "qty_kg",
-  "qty_pcs"
+  "qty_pcs",
+  "batch"
  ],
  "fields": [
   {
@@ -60,12 +61,18 @@
    "fieldtype": "Link",
    "label": "Product Group",
    "options": "Item Group"
+  },
+  {
+   "fieldname": "batch",
+   "fieldtype": "Link",
+   "label": "Batch",
+   "options": "Batch"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-08-09 11:03:54.249176",
+ "modified": "2026-08-12 21:57:32.695265",
  "modified_by": "Administrator",
  "module": "Ittehadsteels",
  "name": "Melting Finish Item",

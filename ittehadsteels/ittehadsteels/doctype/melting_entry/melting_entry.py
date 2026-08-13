@@ -18,7 +18,8 @@ class MeltingEntry(Document):
 		self.calculate_total_qty_kg_raw_material()
 		self.calculate_total_amount_raw_material()
 
-	
+	def on_submit(self):
+			self.create_batches_for_finish_items()
 
 	def validate_times(self):
 		if not (self.start_time and self.end_time):
@@ -107,3 +108,21 @@ class MeltingEntry(Document):
 		for row in self.get("raw_material_consumption"):
 			total_amount += flt(row.amount) or 0
 		self.total_input_amount = total_amount
+
+	
+
+	def create_batches_for_finish_items(self):
+		for row in self.get("finish_items"):
+			if not row.finish_item:
+				continue
+
+			batch = frappe.get_doc(
+				{
+					"doctype": "Batch",
+					"batch_id": self.name,
+					"item": row.finish_item,
+					"batch_qty": flt(row.qty_kg),
+				}
+			).insert(ignore_permissions=True)
+
+			row.db_set("batch", batch.name, update_modified=False)
