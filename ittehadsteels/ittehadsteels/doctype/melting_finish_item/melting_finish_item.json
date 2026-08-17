@@ -7,6 +7,7 @@
  "field_order": [
   "product_group",
   "finish_item",
+  "warehouse",
   "item_grade",
   "production_type",
   "qty_kg",
@@ -21,6 +22,15 @@
    "in_list_view": 1,
    "label": "Finish Item",
    "options": "Item",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Warehouse",
+   "options": "Warehouse",
    "reqd": 1
   },
   {

@@ -3,6 +3,7 @@
 
 import string
 
+import re
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -42,24 +43,49 @@ class RollingEntry(Document):
 		if not self.melting_entry:
 			frappe.throw(_("Melting Entry is required to generate Batch IDs for Finish Items"))
 
-		for idx, row in enumerate(rows):
+		next_idx = get_next_batch_index(self.melting_entry)
+
+		for row in rows:
+			if row.batch:
+				# already generated, don't create a duplicate on re-submit/re-run
+				continue
+
+			batch_id = f"{self.melting_entry}-{next_idx:02d}"
+
+			# safety net in case a batch was created outside this flow
+			while frappe.db.exists("Batch", batch_id):
+				next_idx += 1
+				batch_id = f"{self.melting_entry}-{next_idx:02d}"
+
 			batch = frappe.get_doc(
 				{
 					"doctype": "Batch",
-					"batch_id": f"{self.melting_entry}{batch_suffix(idx)}",
+					"batch_id": batch_id,
 					**{dest: row.get(source) for source, dest in FINISH_ITEM_BATCH_FIELD_MAP},
 				}
 			).insert(ignore_permissions=True)
 
 			row.db_set("batch", batch.name, update_modified=False)
+			next_idx += 1
 
 
-def batch_suffix(idx):
-	"""0 -> A, 1 -> B, ..., 25 -> Z, 26 -> AA, 27 -> AB, ..."""
-	letters = string.ascii_uppercase
-	suffix = ""
-	idx += 1
-	while idx > 0:
-		idx, remainder = divmod(idx - 1, 26)
-		suffix = letters[remainder] + suffix
-	return suffix
+def get_next_batch_index(prefix):
+    """
+    Look at existing batches named `<prefix>-01`, `<prefix>-02`, ...
+    and return the next number to use (1 if none exist).
+    """
+    existing = frappe.get_all(
+        "Batch",
+        filters={"name": ("like", f"{prefix}-%")},
+        pluck="name",
+    )
+
+    pattern = re.compile(rf"^{re.escape(prefix)}-(\d+)$")
+    last = 0
+
+    for name in existing:
+        match = pattern.match(name)
+        if match:
+            last = max(last, int(match.group(1)))
+
+    return last + 1

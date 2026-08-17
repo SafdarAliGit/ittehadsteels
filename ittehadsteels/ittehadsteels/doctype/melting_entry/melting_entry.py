@@ -17,9 +17,11 @@ class MeltingEntry(Document):
 		self.calculate_total_qty_kg()
 		self.calculate_total_qty_kg_raw_material()
 		self.calculate_total_amount_raw_material()
+		self.calculate_finish_rate()
 
 	def on_submit(self):
 			self.create_batches_for_finish_items()
+			self.create_repack_stock_entry()
 
 	def validate_times(self):
 		if not (self.start_time and self.end_time):
@@ -109,20 +111,102 @@ class MeltingEntry(Document):
 			total_amount += flt(row.amount) or 0
 		self.total_input_amount = total_amount
 
-	
+	def calculate_finish_rate(self):
+		total_output = flt(self.total_output_weight)
+		self.finish_rate = flt(self.total_input_amount) / total_output if total_output else 0
+
+
 
 	def create_batches_for_finish_items(self):
+		next_idx = 1
+
 		for row in self.get("finish_items"):
 			if not row.finish_item:
 				continue
 
+			batch_id = f"{self.name}-{next_idx:02d}"
+
+			# safety net in case a batch was created outside this flow
+			while frappe.db.exists("Batch", batch_id):
+				next_idx += 1
+				batch_id = f"{self.name}-{next_idx:02d}"
+
 			batch = frappe.get_doc(
 				{
 					"doctype": "Batch",
-					"batch_id": self.name,
+					"batch_id": batch_id,
 					"item": row.finish_item,
 					"batch_qty": flt(row.qty_kg),
 				}
 			).insert(ignore_permissions=True)
 
 			row.db_set("batch", batch.name, update_modified=False)
+			next_idx += 1
+
+	def create_repack_stock_entry(self):
+		raw_rows = [row for row in self.get("raw_material_consumption") if row.item_code]
+		finish_rows = [row for row in self.get("finish_items") if row.finish_item]
+
+		if not raw_rows or not finish_rows:
+			frappe.throw(
+				_("Raw Material Consumption and Finish Items are required to create the Repack Stock Entry")
+			)
+
+		for row in raw_rows:
+			if not row.warehouse:
+				frappe.throw(
+					_("Row #{0}: Warehouse is required in Raw Material Consumption to create the Repack Stock Entry").format(row.idx)
+				)
+
+		for row in finish_rows:
+			if not row.warehouse:
+				frappe.throw(
+					_("Row #{0}: Warehouse is required in Finish Items to create the Repack Stock Entry").format(row.idx)
+				)
+
+		company = frappe.defaults.get_user_default("Company")
+		if not company:
+			frappe.throw(_("Default Company is not set for the current user"))
+
+		stock_entry = frappe.new_doc("Stock Entry")
+		stock_entry.stock_entry_type = "Repack"
+		stock_entry.purpose = "Repack"
+		stock_entry.company = company
+		stock_entry.posting_date = self.posting_date
+		stock_entry.remarks = _("Repack generated from Melting Entry {0}").format(self.name)
+		stock_entry.custom_melting_entry = self.name
+
+		for row in raw_rows:
+			stock_entry.append(
+				"items",
+				{
+					"item_code": row.item_code,
+					"s_warehouse": row.warehouse,
+					"qty": flt(row.qty_kg),
+					# "basic_rate": flt(row.rate),
+					"allow_zero_valuation_rate": 1,
+					**get_stock_uom_fields(row.item_code),
+				},
+			)
+
+		for row in finish_rows:
+			stock_entry.append(
+				"items",
+				{
+					"item_code": row.finish_item,
+					"t_warehouse": row.warehouse,
+					"qty": flt(row.qty_kg),
+					"basic_rate": flt(self.finish_rate),
+					"batch_no": row.batch,
+					"is_finish_item":1,
+					**get_stock_uom_fields(row.finish_item),
+				},
+			)
+
+		stock_entry.insert(ignore_permissions=True)
+		stock_entry.submit()
+
+
+def get_stock_uom_fields(item_code):
+	stock_uom = frappe.get_cached_value("Item", item_code, "stock_uom")
+	return {"uom": stock_uom, "stock_uom": stock_uom, "conversion_factor": 1}
