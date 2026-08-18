@@ -151,5 +151,65 @@
   "fieldtype": "Int",
   "default": "0",
   "insert_after": "guage"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Sales Order Item-grade",
+  "dt": "Sales Order Item",
+  "fieldname": "grade",
+  "label": "Grade",
+  "fieldtype": "Link",
+  "options": "Grade",
+  "insert_after": "warehouse"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Sales Order Item-guage",
+  "dt": "Sales Order Item",
+  "fieldname": "guage",
+  "label": "Guage",
+  "fieldtype": "Link",
+  "options": "Guage",
+  "insert_after": "grade"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Sales Order Item-length",
+  "dt": "Sales Order Item",
+  "fieldname": "length",
+  "label": "Length",
+  "fieldtype": "Link",
+  "options": "Length",
+  "insert_after": "guage"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Delivery Note Item-grade",
+  "dt": "Delivery Note Item",
+  "fieldname": "grade",
+  "label": "Grade",
+  "fieldtype": "Link",
+  "options": "Grade",
+  "insert_after": "warehouse"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Delivery Note Item-guage",
+  "dt": "Delivery Note Item",
+  "fieldname": "guage",
+  "label": "Guage",
+  "fieldtype": "Link",
+  "options": "Guage",
+  "insert_after": "grade"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Delivery Note Item-length",
+  "dt": "Delivery Note Item",
+  "fieldname": "length",
+  "label": "Length",
+  "fieldtype": "Link",
+  "options": "Length",
+  "insert_after": "guage"
  }
 ]

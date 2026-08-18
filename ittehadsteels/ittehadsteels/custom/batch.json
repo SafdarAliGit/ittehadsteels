@@ -32,7 +32,7 @@
    "in_list_view": 0,
    "in_preview": 0,
    "in_standard_filter": 0,
-   "insert_after": "custom_job_card_dyeing",
+   "insert_after": "custom_customer_challan_no",
    "is_system_generated": 0,
    "is_virtual": 0,
    "label": "Color",
@@ -858,7 +858,7 @@
    "property": "field_order",
    "property_type": "Data",
    "row_name": null,
-   "value": "[\"sb_disabled\", \"disabled\", \"column_break_24\", \"use_batchwise_valuation\", \"sb_batch\", \"customer\", \"customer_challan_no\", \"batch_id\", \"item\", \"item_name\", \"image\", \"parent_batch\", \"manufacturing_date\", \"column_break_3\", \"batch_qty\", \"custom_received_qty\", \"stock_uom\", \"expiry_date\", \"source\", \"supplier\", \"column_break_9\", \"reference_doctype\", \"reference_name\", \"section_break_7\", \"description\", \"manufacturing_section\", \"qty_to_produce\", \"column_break_23\", \"produced_qty\", \"custom_customer\", \"custom_customer_challan_no\", \"custom_job_card_dyeing\", \"custom_color\", \"custom_finish_type\", \"custom_customer_name\", null]"
+   "value": "[\"sb_disabled\", \"disabled\", \"column_break_24\", \"use_batchwise_valuation\", \"sb_batch\", \"customer\", \"customer_challan_no\", \"batch_id\", \"item\", \"item_name\", \"image\", \"parent_batch\", \"manufacturing_date\", \"column_break_3\", \"batch_qty\", \"custom_received_qty\", \"stock_uom\", \"expiry_date\", \"source\", \"supplier\", \"column_break_9\", \"reference_doctype\", \"reference_name\", \"section_break_7\", \"description\", \"manufacturing_section\", \"qty_to_produce\", \"column_break_23\", \"produced_qty\", \"custom_customer\", \"custom_customer_challan_no\", \"custom_color\", \"custom_finish_type\", \"custom_customer_name\", null]"
   }
  ],
  "sync_on_migrate": 1
