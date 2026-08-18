@@ -130,6 +130,9 @@ class MeltingEntry(Document):
 					"batch_id": self.name,
 					"item": row.finish_item,
 					"batch_qty": flt(row.qty_kg),
+					"qty_pcs": flt(row.qty_pcs),
+					"grade": row.grade,
+					"length": row.length,
 				}
 			).insert(ignore_permissions=True)
 
