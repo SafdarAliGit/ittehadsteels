@@ -23,8 +23,20 @@ def get_raw_items_from_melting_entry(melting_entry=None):
 		order_by="idx asc",
 	)
 
+	batch_names = {row.get("batch") for row in rows if row.get("batch")}
+	batch_qty_map = {}
+	if batch_names:
+		batch_qty_map = {
+			b.name: b.batch_qty
+			for b in frappe.get_all(
+				"Batch", filters={"name": ["in", list(batch_names)]}, fields=["name", "batch_qty"]
+			)
+		}
+
 	raw_items = []
 	for row in rows:
-		raw_items.append({dest: row.get(source) for source, dest in FIELD_MAP})
+		item = {dest: row.get(source) for source, dest in FIELD_MAP}
+		item["available_qty"] = batch_qty_map.get(row.get("batch"))
+		raw_items.append(item)
 
 	return raw_items

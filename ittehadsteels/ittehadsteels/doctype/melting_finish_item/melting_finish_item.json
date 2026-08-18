@@ -47,9 +47,10 @@
   {
    "columns": 2,
    "fieldname": "grade",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Grade",
+   "options": "Grade",
    "reqd": 1
   },
   {
@@ -101,7 +102,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-08-18 13:35:49.688283",
+ "modified": "2026-08-18 13:52:20.453772",
  "modified_by": "Administrator",
  "module": "Ittehadsteels",
  "name": "Melting Finish Item",
