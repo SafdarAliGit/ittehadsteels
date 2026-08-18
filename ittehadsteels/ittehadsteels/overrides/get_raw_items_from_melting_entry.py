@@ -4,6 +4,9 @@ import frappe
 FIELD_MAP = [
 	("finish_item", "item_code"),
 	("batch", "heat_no"),
+	("length","length"),
+	("grade", "grade"),
+	("warehouse","warehouse")
 ]
 
 
