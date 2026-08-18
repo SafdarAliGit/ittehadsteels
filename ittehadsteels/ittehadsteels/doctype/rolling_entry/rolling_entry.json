@@ -35,6 +35,7 @@
   "cost_per_kg",
   "column_break_cost1",
   "cost_per_ton",
+  "repack_stock_entry",
   "amended_from"
  ],
  "fields": [
@@ -207,11 +208,26 @@
    "fieldtype": "Link",
    "label": "Melting Entry",
    "options": "Melting Entry"
+  },
+  {
+   "fieldname": "repack_stock_entry",
+   "fieldtype": "Link",
+   "label": "Repack Stock Entry",
+   "no_copy": 1,
+   "options": "Stock Entry",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
+ "links": [
+  {
+   "link_doctype": "Stock Entry",
+   "link_fieldname": "custom_rolling_entry"
+  }
+ ],
  "modified": "2026-08-12 22:25:03.998209",
  "modified_by": "Administrator",
  "module": "Ittehadsteels",

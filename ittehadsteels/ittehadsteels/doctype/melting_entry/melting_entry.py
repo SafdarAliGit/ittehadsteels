@@ -180,7 +180,7 @@ class MeltingEntry(Document):
 					"qty": flt(row.qty_kg),
 					# "basic_rate": flt(row.rate),
 					"allow_zero_valuation_rate": 1,
-					**get_stock_uom_fields(row.item_code),
+					**get_stock_uom_fields(row.item_code)
 				},
 			)
 
@@ -192,9 +192,10 @@ class MeltingEntry(Document):
 					"t_warehouse": row.warehouse,
 					"qty": flt(row.qty_kg),
 					"basic_rate": flt(self.finish_rate),
+					"use_serial_batch_fields":1,
 					"batch_no": row.batch,
 					"is_finish_item":1,
-					**get_stock_uom_fields(row.finish_item),
+					**get_stock_uom_fields(row.finish_item)
 				},
 			)
 
