@@ -118,30 +118,22 @@ class MeltingEntry(Document):
 
 
 	def create_batches_for_finish_items(self):
-		next_idx = 1
 
 		for row in self.get("finish_items"):
 			if not row.finish_item:
 				continue
 
-			batch_id = f"{self.name}-{next_idx:02d}"
-
-			# safety net in case a batch was created outside this flow
-			while frappe.db.exists("Batch", batch_id):
-				next_idx += 1
-				batch_id = f"{self.name}-{next_idx:02d}"
 
 			batch = frappe.get_doc(
 				{
 					"doctype": "Batch",
-					"batch_id": batch_id,
+					"batch_id": self.name,
 					"item": row.finish_item,
 					"batch_qty": flt(row.qty_kg),
 				}
 			).insert(ignore_permissions=True)
 
 			row.db_set("batch", batch.name, update_modified=False)
-			next_idx += 1
 
 	def create_repack_stock_entry(self):
 		raw_rows = [row for row in self.get("raw_material_consumption") if row.item_code]
