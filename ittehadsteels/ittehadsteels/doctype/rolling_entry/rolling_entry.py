@@ -72,7 +72,6 @@ class RollingEntry(Document):
 	def create_repack_stock_entry(self):
 		raw_rows = [row for row in self.get("raw_items") if row.item_code]
 		finish_rows = [row for row in self.get("finish_items") if row.item_code]
-		by_product_rows = [row for row in self.get("finish_by_products") if row.item]
 
 		if not raw_rows or not finish_rows:
 			frappe.throw(
@@ -89,12 +88,6 @@ class RollingEntry(Document):
 			if not row.warehouse:
 				frappe.throw(
 					_("Row #{0}: Warehouse is required in Finish Items to create the Repack Stock Entry").format(row.idx)
-				)
-
-		for row in by_product_rows:
-			if not row.warehouse:
-				frappe.throw(
-					_("Row #{0}: Warehouse is required in Finish By Products to create the Repack Stock Entry").format(row.idx)
 				)
 
 		company = frappe.defaults.get_user_default("Company")
@@ -135,18 +128,6 @@ class RollingEntry(Document):
 					"batch_no": row.batch,
 					"is_finish_item":1,
 					**get_stock_uom_fields(row.item_code)
-				},
-			)
-
-		for row in by_product_rows:
-			stock_entry.append(
-				"items",
-				{
-					"item_code": row.item,
-					"t_warehouse": row.warehouse,
-					"qty": flt(row.qty),
-					"allow_zero_valuation_rate": 1,
-					**get_stock_uom_fields(row.item)
 				},
 			)
 

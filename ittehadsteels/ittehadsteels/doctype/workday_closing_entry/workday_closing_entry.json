@@ -1,0 +1,191 @@
+{
+ "actions": [],
+ "autoname": "WCE-.{from_date}.-.{from_date}.-.#####",
+ "creation": "2026-08-25 00:00:00",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_general",
+  "from_date",
+  "column_break_gen1",
+  "to_date",
+  "section_break_rolling",
+  "rolling_entry_item",
+  "section_break_1zmb",
+  "total_issue_qty",
+  "column_break_totals1",
+  "total_finish_qty",
+  "column_break_totals2",
+  "total_balance_qty",
+  "section_break_by_products",
+  "finish_by_products",
+  "total_by_product_weight",
+  "section_break_yield",
+  "difference",
+  "column_break_yield1",
+  "yield_percent",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_general",
+   "fieldtype": "Section Break",
+   "label": "General Details"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "From Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_gen1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "To Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_rolling",
+   "fieldtype": "Section Break",
+   "label": "Rolling Entries"
+  },
+  {
+   "fieldname": "rolling_entry_item",
+   "fieldtype": "Table",
+   "label": "Rolling Entry Item",
+   "options": "Rolling Entry Item"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_issue_qty",
+   "fieldtype": "Float",
+   "label": "Total Issue Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_totals1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_finish_qty",
+   "fieldtype": "Float",
+   "label": "Total Finish Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_totals2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_balance_qty",
+   "fieldtype": "Float",
+   "label": "Total Balance Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_by_products",
+   "fieldtype": "Section Break",
+   "label": "Finish By Products"
+  },
+  {
+   "fieldname": "finish_by_products",
+   "fieldtype": "Table",
+   "label": "Finish By Products",
+   "options": "Finish By Products"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_by_product_weight",
+   "fieldtype": "Float",
+   "label": "Total By Product Weight",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_yield",
+   "fieldtype": "Section Break",
+   "label": "Yield Summary"
+  },
+  {
+   "default": "0",
+   "description": "Total Balance Qty - Total By Product Weight",
+   "fieldname": "difference",
+   "fieldtype": "Float",
+   "label": "Difference",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_yield1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Difference * 100 / Total Issue Qty",
+   "fieldname": "yield_percent",
+   "fieldtype": "Percent",
+   "label": "Yield %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Workday Closing Entry",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_1zmb",
+   "fieldtype": "Section Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-08-25 21:35:20.622037",
+ "modified_by": "Administrator",
+ "module": "Ittehadsteels",
+ "name": "Workday Closing Entry",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

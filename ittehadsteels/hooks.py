@@ -197,7 +197,10 @@ fixtures = [
 
 # exempt linked doctypes from being automatically cancelled
 #
-# auto_cancel_exempted_doctypes = ["Auto Repeat"]
+# Rolling Entry documents are independent production records; cancelling a
+# Workday Closing Entry must only release the workday_closing_entry link
+# (handled in WorkdayClosingEntry.on_cancel) and never cascade-cancel them.
+auto_cancel_exempted_doctypes = ["Rolling Entry"]
 
 # Ignore links to specified DocTypes when deleting documents
 # -----------------------------------------------------------

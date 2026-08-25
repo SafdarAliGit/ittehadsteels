@@ -27,8 +27,6 @@
   "finish_items",
   "section_break_kzoz",
   "total_finish_qty",
-  "section_break_by_products",
-  "finish_by_products",
   "section_break_consumables",
   "consumables",
   "section_break_cost",
@@ -36,6 +34,7 @@
   "column_break_cost1",
   "cost_per_ton",
   "repack_stock_entry",
+  "workday_closing_entry",
   "amended_from"
  ],
  "fields": [
@@ -131,17 +130,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "section_break_by_products",
-   "fieldtype": "Section Break",
-   "label": "Finish By Products"
-  },
-  {
-   "fieldname": "finish_by_products",
-   "fieldtype": "Table",
-   "label": "Finish By Products",
-   "options": "Finish By Products"
-  },
-  {
    "fieldname": "section_break_consumables",
    "fieldtype": "Section Break",
    "label": "Consumables"
@@ -215,6 +203,16 @@
    "label": "Repack Stock Entry",
    "no_copy": 1,
    "options": "Stock Entry",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "workday_closing_entry",
+   "fieldtype": "Link",
+   "label": "Workday Closing Entry",
+   "no_copy": 1,
+   "options": "Workday Closing Entry",
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
