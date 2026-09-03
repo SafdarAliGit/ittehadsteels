@@ -6,6 +6,8 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt
 
+from ittehadsteels.ittehadsteels.doctype.rolling_entry.rolling_entry import get_stock_uom_fields
+
 
 class WorkdayClosingEntry(Document):
 	def validate(self):
@@ -13,6 +15,7 @@ class WorkdayClosingEntry(Document):
 
 	def on_submit(self):
 		self.mark_rolling_entries_as_used()
+		self.create_material_receipt_for_by_products()
 
 	def on_cancel(self):
 		self.release_rolling_entries()
@@ -39,6 +42,49 @@ class WorkdayClosingEntry(Document):
 			if not row.rolling_entry:
 				continue
 			frappe.db.set_value("Rolling Entry", row.rolling_entry, "workday_closing_entry", None)
+
+	def create_material_receipt_for_by_products(self):
+		if self.material_receipt_entry:
+			# already generated, don't create a duplicate on re-submit/re-run
+			return
+
+		rows = [row for row in self.get("finish_by_products") if row.item]
+		if not rows:
+			return
+
+		for row in rows:
+			if not row.warehouse:
+				frappe.throw(
+					_("Row #{0}: Warehouse is required in Finish By Products to create the Material Receipt").format(row.idx)
+				)
+
+		company = frappe.defaults.get_user_default("Company")
+		if not company:
+			frappe.throw(_("Default Company is not set for the current user"))
+
+		stock_entry = frappe.new_doc("Stock Entry")
+		stock_entry.stock_entry_type = "Material Receipt"
+		stock_entry.purpose = "Material Receipt"
+		stock_entry.company = company
+		stock_entry.posting_date = self.to_date
+		stock_entry.remarks = _("By Products generated from Workday Closing Entry {0}").format(self.name)
+
+		for row in rows:
+			stock_entry.append(
+				"items",
+				{
+					"item_code": row.item,
+					"t_warehouse": row.warehouse,
+					"qty": flt(row.qty),
+					"allow_zero_valuation_rate": 1,
+					**get_stock_uom_fields(row.item)
+				},
+			)
+
+		stock_entry.insert(ignore_permissions=True)
+		stock_entry.submit()
+
+		self.db_set("material_receipt_entry", stock_entry.name, update_modified=False)
 
 	def calculate_totals(self):
 		self.total_issue_qty = sum(flt(row.total_issue_qty) for row in self.get("rolling_entry_item"))

@@ -113,6 +113,7 @@ class RollingEntry(Document):
 					"qty": flt(row.issue_qty),
 					"basic_rate": flt(row.rate),
 					# "allow_zero_valuation_rate": 1,
+					"use_serial_batch_fields": 1,
 					"batch_no": row.heat_no,
 					**get_stock_uom_fields(row.item_code)
 				},
@@ -135,6 +136,8 @@ class RollingEntry(Document):
 
 		stock_entry.insert(ignore_permissions=True)
 		stock_entry.submit()
+
+		self.db_set("repack_stock_entry", stock_entry.name, update_modified=False)
 
 
 def get_stock_uom_fields(item_code):

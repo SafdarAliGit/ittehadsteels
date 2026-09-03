@@ -22,6 +22,7 @@
   "section_break_by_products",
   "finish_by_products",
   "total_by_product_weight",
+  "material_receipt_entry",
   "section_break_yield",
   "difference",
   "column_break_yield1",
@@ -109,6 +110,16 @@
    "fieldtype": "Float",
    "label": "Total By Product Weight",
    "read_only": 1
+  },
+  {
+   "fieldname": "material_receipt_entry",
+   "fieldtype": "Link",
+   "label": "Material Receipt Entry",
+   "no_copy": 1,
+   "options": "Stock Entry",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
   },
   {
    "fieldname": "section_break_yield",
