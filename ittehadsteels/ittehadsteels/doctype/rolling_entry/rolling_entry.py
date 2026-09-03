@@ -157,6 +157,7 @@ class RollingEntry(Document):
 			)
 
 		stock_entry.insert(ignore_permissions=True)
+		stock_entry.reload()
 		stock_entry.submit()
 
 
