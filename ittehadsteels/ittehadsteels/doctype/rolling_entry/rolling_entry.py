@@ -7,7 +7,7 @@ import re
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt, getdate
+from frappe.utils import cint, flt, getdate
 
 # (source fieldname in Finish Items, destination fieldname in Batch)
 FINISH_ITEM_BATCH_FIELD_MAP = [
@@ -45,15 +45,7 @@ class RollingEntry(Document):
 			frappe.throw(_("Date is required to generate RH No"))
 
 		date_str = getdate(self.date).strftime("%d%m%y")
-		next_idx = get_next_rh_serial(date_str)
-		rh_no = f"RH{date_str}-{next_idx:02d}"
-
-		# safety net in case an RH No was created outside this flow
-		while frappe.db.exists("Rolling Entry", {"rh_no": rh_no, "name": ("!=", self.name)}):
-			next_idx += 1
-			rh_no = f"RH{date_str}-{next_idx:02d}"
-
-		self.rh_no = rh_no
+		self.rh_no = f"RH{date_str}-{get_next_rh_serial(date_str)}"
 
 	def create_batches_for_finish_items(self):
 		rows = [row for row in self.get("finish_items") if row.item_code]
@@ -190,9 +182,32 @@ def get_next_batch_index(prefix):
 
 def get_next_rh_serial(date_str):
     """
+    Atomically reserve the next 2-digit RH serial for a date, using a row
+    lock on `tabSeries` (the same mechanism Frappe's own naming series use)
+    so concurrent/retried saves for the same date never get the same
+    serial. The counter is seeded from existing RH Nos the first time a
+    date is used, so it stays consistent with any records created before
+    this locking was added.
+    """
+    key = f"RH-{date_str}"
+    series = frappe.qb.DocType("Series")
+    current = (frappe.qb.from_(series).where(series.name == key).for_update().select("current")).run()
+
+    if current and current[0][0] is not None:
+        next_val = cint(current[0][0]) + 1
+        frappe.db.sql("UPDATE `tabSeries` SET `current` = `current` + 1 WHERE `name`=%s", (key,))
+    else:
+        next_val = get_existing_rh_max(date_str) + 1
+        frappe.db.sql("INSERT INTO `tabSeries` (`name`, `current`) VALUES (%s, %s)", (key, next_val))
+
+    return f"{next_val:02d}"
+
+
+def get_existing_rh_max(date_str):
+    """
     Look at existing Rolling Entries with Re-Heating checked whose RH No is
-    `RH<date_str>-01`, `RH<date_str>-02`, ... and return the next serial to
-    use for that date (1 if none exist).
+    `RH<date_str>-01`, `RH<date_str>-02`, ... and return the highest serial
+    used so far for that date (0 if none exist).
     """
     prefix = f"RH{date_str}-"
     existing = frappe.get_all(
@@ -209,4 +224,4 @@ def get_next_rh_serial(date_str):
         if match:
             last = max(last, int(match.group(1)))
 
-    return last + 1
+    return last
