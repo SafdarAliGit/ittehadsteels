@@ -1,13 +1,11 @@
 # Copyright (c) 2026, Safdar Ali and contributors
 # For license information, please see license.txt
 
-import string
-
 import re
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cint, flt, getdate
+from frappe.utils import flt
 
 # (source fieldname in Finish Items, destination fieldname in Batch)
 FINISH_ITEM_BATCH_FIELD_MAP = [
@@ -23,7 +21,6 @@ FINISH_ITEM_BATCH_FIELD_MAP = [
 class RollingEntry(Document):
 	def validate(self):
 		self.calculate_totals()
-		self.set_rh_no()
 
 	def on_submit(self):
 		self.create_batches_for_finish_items()
@@ -37,25 +34,13 @@ class RollingEntry(Document):
 		self.cost_per_kg = flt(self.total_raw_material_amount) / self.total_finish_qty if self.total_finish_qty else 0
 		self.cost_per_ton = flt(self.cost_per_kg) / 1000
 
-	def set_rh_no(self):
-		if not self.reheating or self.rh_no:
-			return
-
-		if not self.date:
-			frappe.throw(_("Date is required to generate RH No"))
-
-		date_str = getdate(self.date).strftime("%d%m%y")
-		self.rh_no = f"RH{date_str}-{get_next_rh_serial(date_str)}"
-
 	def create_batches_for_finish_items(self):
 		rows = [row for row in self.get("finish_items") if row.item_code]
 		if not rows:
 			return
 
 		if self.reheating:
-			if not self.rh_no:
-				frappe.throw(_("RH No is required to generate Batch IDs for Finish Items"))
-			prefix = self.rh_no
+			prefix = self.name
 		else:
 			if not self.melting_entry:
 				frappe.throw(_("Melting Entry is required to generate Batch IDs for Finish Items"))
@@ -126,8 +111,8 @@ class RollingEntry(Document):
 					"item_code": row.item_code,
 					"s_warehouse": row.warehouse,
 					"qty": flt(row.issue_qty),
-					# "basic_rate": flt(row.rate),
-					"allow_zero_valuation_rate": 1,
+					"basic_rate": flt(row.rate),
+					# "allow_zero_valuation_rate": 1,
 					"batch_no": row.heat_no,
 					**get_stock_uom_fields(row.item_code)
 				},
@@ -149,7 +134,6 @@ class RollingEntry(Document):
 			)
 
 		stock_entry.insert(ignore_permissions=True)
-		stock_entry.reload()
 		stock_entry.submit()
 
 
@@ -178,50 +162,3 @@ def get_next_batch_index(prefix):
             last = max(last, int(match.group(1)))
 
     return last + 1
-
-
-def get_next_rh_serial(date_str):
-    """
-    Atomically reserve the next 2-digit RH serial for a date, using a row
-    lock on `tabSeries` (the same mechanism Frappe's own naming series use)
-    so concurrent/retried saves for the same date never get the same
-    serial. The counter is seeded from existing RH Nos the first time a
-    date is used, so it stays consistent with any records created before
-    this locking was added.
-    """
-    key = f"RH-{date_str}"
-    series = frappe.qb.DocType("Series")
-    current = (frappe.qb.from_(series).where(series.name == key).for_update().select("current")).run()
-
-    if current and current[0][0] is not None:
-        next_val = cint(current[0][0]) + 1
-        frappe.db.sql("UPDATE `tabSeries` SET `current` = `current` + 1 WHERE `name`=%s", (key,))
-    else:
-        next_val = get_existing_rh_max(date_str) + 1
-        frappe.db.sql("INSERT INTO `tabSeries` (`name`, `current`) VALUES (%s, %s)", (key, next_val))
-
-    return f"{next_val:02d}"
-
-
-def get_existing_rh_max(date_str):
-    """
-    Look at existing Rolling Entries with Re-Heating checked whose RH No is
-    `RH<date_str>-01`, `RH<date_str>-02`, ... and return the highest serial
-    used so far for that date (0 if none exist).
-    """
-    prefix = f"RH{date_str}-"
-    existing = frappe.get_all(
-        "Rolling Entry",
-        filters={"reheating": 1, "rh_no": ("like", f"{prefix}%")},
-        pluck="rh_no",
-    )
-
-    pattern = re.compile(rf"^{re.escape(prefix)}(\d+)$")
-    last = 0
-
-    for rh_no in existing:
-        match = pattern.match(rh_no)
-        if match:
-            last = max(last, int(match.group(1)))
-
-    return last

@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "RE-.{date}.-.####",
+ "autoname": "RE.DD.MM.YY.##",
  "creation": "2026-08-12 00:00:00",
  "default_view": "List",
  "doctype": "DocType",
@@ -35,8 +35,6 @@
   "cost_per_kg",
   "column_break_cost1",
   "cost_per_ton",
-  "column_break_xuvp",
-  "rh_no",
   "repack_stock_entry",
   "workday_closing_entry",
   "amended_from"
@@ -229,16 +227,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "rh_no",
-   "fieldtype": "Data",
-   "label": "RH NO",
-   "read_only": 1
-  },
-  {
-   "fieldname": "column_break_xuvp",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "column_break_d9z2",
    "fieldtype": "Column Break"
   }
@@ -251,7 +239,7 @@
    "link_fieldname": "custom_rolling_entry"
   }
  ],
- "modified": "2026-09-03 20:16:20.814678",
+ "modified": "2026-09-03 22:11:56.235621",
  "modified_by": "Administrator",
  "module": "Ittehadsteels",
  "name": "Rolling Entry",
