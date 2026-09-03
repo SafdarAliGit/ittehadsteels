@@ -10,6 +10,14 @@ frappe.ui.form.on("Rolling Entry", {
 				},
 			};
 		});
+		frm.set_query("heat_no", "raw_items", function (frm, cdt, cdn) {
+			const row = locals[cdt][cdn];
+			return {
+				filters: {
+					item: row.item_code,
+				},
+			};
+		});
 	},
 
 	melting_entry: function (frm) {
