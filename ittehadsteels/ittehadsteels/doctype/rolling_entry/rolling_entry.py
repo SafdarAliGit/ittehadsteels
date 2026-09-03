@@ -7,7 +7,7 @@ import re
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt
+from frappe.utils import flt, getdate
 
 # (source fieldname in Finish Items, destination fieldname in Batch)
 FINISH_ITEM_BATCH_FIELD_MAP = [
@@ -23,6 +23,7 @@ FINISH_ITEM_BATCH_FIELD_MAP = [
 class RollingEntry(Document):
 	def validate(self):
 		self.calculate_totals()
+		self.set_rh_no()
 
 	def on_submit(self):
 		self.create_batches_for_finish_items()
@@ -36,27 +37,51 @@ class RollingEntry(Document):
 		self.cost_per_kg = flt(self.total_raw_material_amount) / self.total_finish_qty if self.total_finish_qty else 0
 		self.cost_per_ton = flt(self.cost_per_kg) / 1000
 
+	def set_rh_no(self):
+		if not self.reheating or self.rh_no:
+			return
+
+		if not self.date:
+			frappe.throw(_("Date is required to generate RH No"))
+
+		date_str = getdate(self.date).strftime("%d%m%y")
+		next_idx = get_next_rh_serial(date_str)
+		rh_no = f"RH{date_str}-{next_idx:02d}"
+
+		# safety net in case an RH No was created outside this flow
+		while frappe.db.exists("Rolling Entry", {"rh_no": rh_no, "name": ("!=", self.name)}):
+			next_idx += 1
+			rh_no = f"RH{date_str}-{next_idx:02d}"
+
+		self.rh_no = rh_no
+
 	def create_batches_for_finish_items(self):
 		rows = [row for row in self.get("finish_items") if row.item_code]
 		if not rows:
 			return
 
-		if not self.melting_entry:
-			frappe.throw(_("Melting Entry is required to generate Batch IDs for Finish Items"))
+		if self.reheating:
+			if not self.rh_no:
+				frappe.throw(_("RH No is required to generate Batch IDs for Finish Items"))
+			prefix = self.rh_no
+		else:
+			if not self.melting_entry:
+				frappe.throw(_("Melting Entry is required to generate Batch IDs for Finish Items"))
+			prefix = self.melting_entry
 
-		next_idx = get_next_batch_index(self.melting_entry)
+		next_idx = get_next_batch_index(prefix)
 
 		for row in rows:
 			if row.batch:
 				# already generated, don't create a duplicate on re-submit/re-run
 				continue
 
-			batch_id = f"{self.melting_entry}-{next_idx:02d}"
+			batch_id = f"{prefix}-{next_idx:02d}"
 
 			# safety net in case a batch was created outside this flow
 			while frappe.db.exists("Batch", batch_id):
 				next_idx += 1
-				batch_id = f"{self.melting_entry}-{next_idx:02d}"
+				batch_id = f"{prefix}-{next_idx:02d}"
 
 			batch = frappe.get_doc(
 				{
@@ -156,6 +181,30 @@ def get_next_batch_index(prefix):
 
     for name in existing:
         match = pattern.match(name)
+        if match:
+            last = max(last, int(match.group(1)))
+
+    return last + 1
+
+
+def get_next_rh_serial(date_str):
+    """
+    Look at existing Rolling Entries with Re-Heating checked whose RH No is
+    `RH<date_str>-01`, `RH<date_str>-02`, ... and return the next serial to
+    use for that date (1 if none exist).
+    """
+    prefix = f"RH{date_str}-"
+    existing = frappe.get_all(
+        "Rolling Entry",
+        filters={"reheating": 1, "rh_no": ("like", f"{prefix}%")},
+        pluck="rh_no",
+    )
+
+    pattern = re.compile(rf"^{re.escape(prefix)}(\d+)$")
+    last = 0
+
+    for rh_no in existing:
+        match = pattern.match(rh_no)
         if match:
             last = max(last, int(match.group(1)))
 
