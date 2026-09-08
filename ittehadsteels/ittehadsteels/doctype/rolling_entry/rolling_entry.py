@@ -137,8 +137,6 @@ class RollingEntry(Document):
 		stock_entry.insert(ignore_permissions=True)
 		stock_entry.submit()
 
-		self.db_set("repack_stock_entry", stock_entry.name, update_modified=False)
-
 
 def get_stock_uom_fields(item_code):
 	stock_uom = frappe.get_cached_value("Item", item_code, "stock_uom")
