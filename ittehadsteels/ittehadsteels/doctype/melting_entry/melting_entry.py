@@ -23,6 +23,9 @@ class MeltingEntry(Document):
 			self.create_batches_for_finish_items()
 			self.create_repack_stock_entry()
 
+	def on_cancel(self):
+			self.cancel_related_stock_entries()
+
 	def validate_times(self):
 		if not (self.start_time and self.end_time):
 			return
@@ -201,6 +204,16 @@ class MeltingEntry(Document):
 
 		stock_entry.insert(ignore_permissions=True)
 		stock_entry.submit()
+
+	def cancel_related_stock_entries(self):
+		stock_entries = frappe.get_all(
+			"Stock Entry",
+			filters={"custom_melting_entry": self.name, "docstatus": 1},
+			pluck="name",
+		)
+
+		for stock_entry in stock_entries:
+			frappe.get_doc("Stock Entry", stock_entry).cancel()
 
 
 def get_stock_uom_fields(item_code):
