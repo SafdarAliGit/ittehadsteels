@@ -40,7 +40,12 @@ app_license = "mit"
 # webform_include_css = {"doctype": "public/css/doctype.css"}
 
 # include js in page
-# page_js = {"page" : "public/js/file.js"}
+page_js = {
+	"steel-dashboard": [
+		"public/js/ittehad_dashboard/icons.js",
+		"public/js/ittehad_dashboard/widgets.js",
+	]
+}
 
 # include js in doctype views
 doctype_js = {"Delivery Note": "public/js/dn.js"}
