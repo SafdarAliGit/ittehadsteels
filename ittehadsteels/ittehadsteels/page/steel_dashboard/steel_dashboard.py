@@ -280,10 +280,11 @@ def get_sales_by_product(from_date, to_date):
 	"by Product" shows what it says: the specific items driving sales, sorted
 	best-selling first. Grouped by (item, uom) rather than item alone - the
 	same item sold in two different UOMs would otherwise get summed into one
-	meaningless qty (same mixed-unit trap as Inventory (Warehouse Wise))."""
+	meaningless qty (same mixed-unit trap as Inventory (Warehouse Wise)).
+	revenue (base_amount) powers the second "by Revenue" pie alongside qty."""
 	rows = frappe.db.sql(
 		"""
-		select coalesce(sii.item_name, sii.item_code) item, sii.uom, sum(sii.qty) qty
+		select coalesce(sii.item_name, sii.item_code) item, sii.uom, sum(sii.qty) qty, sum(sii.base_amount) revenue
 		from `tabSales Invoice Item` sii
 		inner join `tabSales Invoice` si on si.name = sii.parent
 		where si.docstatus = 1 and si.posting_date between %s and %s
@@ -292,7 +293,9 @@ def get_sales_by_product(from_date, to_date):
 		""",
 		(from_date, to_date),
 	)
-	return [{"label": r[0], "unit": r[1], "qty": round(flt(r[2]), 1)} for r in rows]
+	return [
+		{"label": r[0], "unit": r[1], "qty": round(flt(r[2]), 1), "revenue": round(flt(r[3]), 2)} for r in rows
+	]
 
 
 # ------------------------------------------------------------- live: energy

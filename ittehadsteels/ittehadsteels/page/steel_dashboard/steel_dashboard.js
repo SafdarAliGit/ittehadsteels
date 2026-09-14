@@ -203,14 +203,28 @@ class IttehadDashboard {
 		`;
 	}
 
+	// Item name + qty/unit as a horizontal bar list on top, two pies below it
+	// breaking the same items down by qty and by revenue (with % in each
+	// pie's legend, see widgets.donut()).
+	// Two pie circles (Qty, Revenue) but ONE shared legend below them - each
+	// item listed once with both percentages together, instead of the same
+	// item list repeated twice (see render_sales_pie_legend()).
 	sales_by_product_card_html() {
 		return `
 			<div class="isd-card">
 				<div class="isd-card-title">Sales by Product</div>
-				<table class="isd-table">
-					<thead><tr><th>Product</th><th>Sales</th><th>Unit</th></tr></thead>
-					<tbody class="isd-sales-by-product"></tbody>
-				</table>
+				<div class="isd-sales-by-product-chart"></div>
+				<div class="isd-sales-pie-row">
+					<div>
+						<div class="isd-sales-pie-title">By Qty</div>
+						<div class="isd-donut-wrap isd-sales-by-product-pie-qty"></div>
+					</div>
+					<div>
+						<div class="isd-sales-pie-title">By Revenue</div>
+						<div class="isd-donut-wrap isd-sales-by-product-pie-revenue"></div>
+					</div>
+				</div>
+				<div class="isd-donut-legend isd-sales-pie-legend"></div>
 			</div>
 		`;
 	}
@@ -575,21 +589,58 @@ class IttehadDashboard {
 	}
 
 	render_sales_by_product(rows) {
-		const $body = this.$container.find(".isd-sales-by-product");
 		const w = ittehad_dashboard.widgets;
+		w.hbars(this.$container.find(".isd-sales-by-product-chart"), {
+			items: rows,
+			label_key: "label",
+			value_key: "qty",
+			unit_key: "unit",
+		});
+		w.donut(this.$container.find(".isd-sales-by-product-pie-qty"), {
+			items: rows,
+			value_key: "qty",
+			label_key: "label",
+			total_label: "Qty Total",
+		});
+		w.donut(this.$container.find(".isd-sales-by-product-pie-revenue"), {
+			items: rows,
+			value_key: "revenue",
+			label_key: "label",
+			total_label: "Revenue Total",
+		});
+		// Each donut draws its own legend by default - hide both (their %
+		// would just duplicate the same item list twice) in favor of the one
+		// shared legend below with both percentages per item.
+		this.$container.find(".isd-sales-by-product-pie-qty, .isd-sales-by-product-pie-revenue").find(".isd-donut-legend").hide();
+		this.render_sales_pie_legend(rows);
+	}
+
+	// Shared legend for the two Sales by Product pies above: one row per
+	// item with its Qty% and Revenue% side by side, colors matching the
+	// pies' own default color cycle (same order, same palette).
+	render_sales_pie_legend(rows) {
+		const $el = this.$container.find(".isd-sales-pie-legend");
 		if (!rows || !rows.length) {
-			$body.html(`<tr><td colspan="3">${w.empty_state("No sales data for this period")}</td></tr>`);
+			$el.html("");
 			return;
 		}
-		$body.html(
+		const colors = ["var(--blue)", "var(--green)", "var(--orange)", "var(--purple)", "var(--gold)"];
+		const qty_total = rows.reduce((s, r) => s + r.qty, 0) || 1;
+		const revenue_total = rows.reduce((s, r) => s + r.revenue, 0) || 1;
+		$el.html(
 			rows
-				.map(
-					(r) => `<tr>
-						<td>${r.label}</td>
-						<td>${frappe.format(r.qty, { fieldtype: "Float", precision: 1 }, { only_value: 1 })}</td>
-						<td>${r.unit}</td>
-					</tr>`
-				)
+				.map((r, i) => {
+					const color = colors[i % colors.length];
+					const qty = frappe.format(r.qty, { fieldtype: "Float", precision: 1 }, { only_value: 1 });
+					const revenue = frappe.format(r.revenue, { fieldtype: "Currency" }, { only_value: 1 });
+					const qty_pct = Math.round((r.qty / qty_total) * 1000) / 10;
+					const revenue_pct = Math.round((r.revenue / revenue_total) * 1000) / 10;
+					return `
+					<div class="item">
+						<span class="l"><span class="swatch" style="background:${color}"></span><b style="color:${color}">${r.label}</b></span>
+						<span><b style="color:var(--green)">Qty:</b> ${qty} ${r.unit} <b class="isd-pct-strong" style="color:var(--green)">${qty_pct}%</b>, <b style="color:var(--gold)">Revenue:</b> ${revenue} <b class="isd-pct-strong" style="color:var(--gold)">${revenue_pct}%</b></span>
+					</div>`;
+				})
 				.join("")
 		);
 	}

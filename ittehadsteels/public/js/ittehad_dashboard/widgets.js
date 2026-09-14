@@ -86,6 +86,27 @@ ittehad_dashboard.widgets = {
 				return `${colors[i % colors.length]} ${start}% ${acc}%`;
 			})
 			.join(", ");
+		// One % label per slice, placed at its mid-angle just outside the
+		// ring's r=65 outer edge (130px .isd-donut) rather than on top of the
+		// slice itself - conic-gradient's 0% is straight up, going clockwise,
+		// hence sin/-cos rather than the usual cos/sin.
+		acc = 0;
+		const cx = 65,
+			cy = 65,
+			r = 80;
+		const seg_labels = items
+			.map((it) => {
+				const start = acc;
+				const slice_pct = (it[value_key] / total) * 100;
+				acc += slice_pct;
+				if (slice_pct < 5) return ""; // too thin for a legible label
+				const mid_angle = ((start + slice_pct / 2) / 100) * 2 * Math.PI;
+				const x = cx + r * Math.sin(mid_angle);
+				const y = cy - r * Math.cos(mid_angle);
+				const pct = Math.round(slice_pct * 10) / 10;
+				return `<span class="isd-donut-seg-label" style="left:${x}px;top:${y}px">${pct}%</span>`;
+			})
+			.join("");
 		const legend = items
 			.map((it, i) => {
 				const pct = Math.round((it[value_key] / total) * 1000) / 10;
@@ -98,6 +119,7 @@ ittehad_dashboard.widgets = {
 			.join("");
 		$target.html(`
 			<div class="isd-donut" style="background:conic-gradient(${stops})">
+				${seg_labels}
 				<div class="isd-donut-center"><b>${frappe.format(total, { fieldtype: "Float", precision: 0 }, { only_value: 1 })}</b><span>${total_label || ""}</span></div>
 			</div>
 			<div class="isd-donut-legend">${legend}</div>
@@ -153,8 +175,10 @@ ittehad_dashboard.widgets = {
 		);
 	},
 
-	// horizontal bar list, e.g. Sales by Product
-	hbars($target, { items, label_key, value_key, colors }) {
+	// horizontal bar list, e.g. Sales by Product. unit_key is optional - when
+	// given, each bar's value is suffixed with that row's own unit (items can
+	// carry different units, e.g. Ton vs Kg, so this reads per-row not global).
+	hbars($target, { items, label_key, value_key, unit_key, colors }) {
 		colors = colors || ["var(--blue)", "var(--green)", "var(--orange)", "var(--purple)", "var(--gold)"];
 		if (!items || !items.length) {
 			$target.html(ittehad_dashboard.widgets.empty_state("No data for this period"));
@@ -168,7 +192,7 @@ ittehad_dashboard.widgets = {
 				<div class="isd-hbar-row">
 					<div class="isd-hbar-label">${it[label_key]}</div>
 					<div class="isd-hbar-track"><div class="isd-hbar-fill" style="width:${(it[value_key] / max) * 100}%;background:${colors[i % colors.length]}"></div></div>
-					<div class="isd-hbar-val">${frappe.format(it[value_key], { fieldtype: "Float", precision: 1 }, { only_value: 1 })}</div>
+					<div class="isd-hbar-val">${frappe.format(it[value_key], { fieldtype: "Float", precision: 1 }, { only_value: 1 })}${unit_key && it[unit_key] ? " " + it[unit_key] : ""}</div>
 				</div>`
 				)
 				.join("")

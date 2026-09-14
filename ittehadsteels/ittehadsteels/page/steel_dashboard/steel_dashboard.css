@@ -238,9 +238,8 @@
 .isd-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; }
 .isd-legend .dash { display: inline-block; width: 14px; border-top: 2px dashed var(--muted); margin-right: 5px; vertical-align: middle; }
 
-/* Production Trend cards: chart in the left 70%, a radial "this week vs
- * last week" gauge in the right 30% (see render_trend_gauge() in
- * steel_dashboard.js). */
+/* Production Trend cards: chart in the left 70%, a This/Last Week sparkline
+ * in the right 30% (see widgets.sparkline()). */
 .isd-trend-split { display: flex; gap: 14px; align-items: center; }
 .isd-trend-main { flex: 0 0 70%; min-width: 0; }
 .isd-trend-side { flex: 0 0 30%; min-width: 0; display: flex; align-items: center; justify-content: center; }
@@ -253,6 +252,9 @@
 /* -------------------------------------------------------------- donut */
 .isd-donut-wrap { display: flex; align-items: center; gap: 18px; min-height: 130px; }
 .isd-donut { width: 130px; height: 130px; border-radius: 50%; position: relative; flex: 0 0 130px; }
+/* Pill-shaped badge (not bare text) so each slice's % reads as its own
+ * label, legible against any slice color underneath. */
+.isd-donut-seg-label { position: absolute; transform: translate(-50%, -50%); font-size: 11px; font-weight: 800; letter-spacing: .2px; color: #fff; white-space: nowrap; pointer-events: none; background: rgba(11, 18, 32, .78); border: 1px solid rgba(255, 255, 255, .15); border-radius: 8px; padding: 2px 6px; line-height: 1.3; }
 .isd-donut-center { position: absolute; inset: 20px; background: var(--panel); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .isd-donut-center b { font-size: 17px; }
 .isd-donut-center span { font-size: 10px; color: var(--muted); }
@@ -280,10 +282,27 @@
 
 /* ------------------------------------------------------------ h-bars */
 .isd-hbar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 12px; }
-.isd-hbar-label { width: 50px; color: var(--muted); flex: 0 0 50px; }
+/* Wide enough for a real item name/code (e.g. "M. S. BILLETS (80MM)")
+ * without wrapping the row - truncates with an ellipsis past that. */
+.isd-hbar-label { width: 320px; flex: 0 0 320px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .isd-hbar-track { flex: 1; background: rgba(255, 255, 255, .05); border-radius: 3px; height: 16px; position: relative; }
 .isd-hbar-fill { height: 100%; border-radius: 3px; }
-.isd-hbar-val { width: 55px; text-align: right; flex: 0 0 55px; }
+.isd-hbar-val { width: 80px; text-align: right; flex: 0 0 80px; white-space: nowrap; }
+
+/* ------------------------------------------------------- sales pies */
+.isd-sales-pie-row { display: flex; gap: 20px; margin-top: 16px; }
+.isd-sales-pie-row > div { flex: 1; min-width: 0; }
+.isd-sales-pie-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+/* The topmost slice's % label sits ~15px above the donut's own box (see
+ * widgets.donut()'s r=80 outside-the-ring placement) - without this the top
+ * label collides with (renders under) the "By Qty"/"By Revenue" title above. */
+.isd-sales-pie-row .isd-donut-wrap { margin-top: 30px; }
+.isd-sales-pie-legend { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--panel-border); }
+.isd-sales-pie-legend .item span:last-child { white-space: nowrap; }
+.isd-pct-strong { font-size: 13px; }
+@media (max-width: 700px) {
+	.isd-sales-pie-row { flex-direction: column; }
+}
 
 /* -------------------------------------------------------------- safety */
 .isd-safety-shield { width: 60px; height: 60px; margin: 4px auto 6px; display: block; }
