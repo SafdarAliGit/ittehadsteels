@@ -55,7 +55,7 @@ def _raw_material_consumption_mt(from_date, to_date):
 		""",
 		(from_date, to_date),
 	)[0][0]
-	return flt(total) / 1000.0
+	return flt(total)
 
 
 def _billet_production_mt(from_date, to_date):
@@ -67,7 +67,7 @@ def _billet_production_mt(from_date, to_date):
 		""",
 		(from_date, to_date),
 	)[0][0]
-	return flt(total) / 1000.0
+	return flt(total)
 
 
 def _bar_production_mt(from_date, to_date):
@@ -79,7 +79,7 @@ def _bar_production_mt(from_date, to_date):
 		""",
 		(from_date, to_date),
 	)[0][0]
-	return flt(total) / 1000.0
+	return flt(total)
 
 
 def _heats(from_date, to_date):
@@ -220,7 +220,7 @@ def _daily_production_trend(from_date, to_date, prev_from, prev_to, doctype, dat
 			""".format(date_field=date_field, sum_field=sum_field, doctype=doctype),
 			(f, t),
 		)
-		return {str(r[0]): flt(r[1]) / 1000.0 for r in rows}
+		return {str(r[0]): flt(r[1]) for r in rows}
 
 	this_map, prev_map = _daily(from_date, to_date), _daily(prev_from, prev_to)
 
@@ -255,7 +255,7 @@ def _by_product_wastage_mt(from_date, to_date):
 		""",
 		(from_date, to_date),
 	)[0][0]
-	return flt(total) / 1000.0
+	return flt(total)
 
 
 def get_production_by_product(from_date, to_date):
@@ -309,7 +309,7 @@ def _power_units_and_output_mt(from_date, to_date):
 		""",
 		(from_date, to_date),
 	)[0]
-	return flt(row[0]), flt(row[1]) / 1000.0
+	return flt(row[0]), flt(row[1])
 
 
 def get_power_consumption(from_date, to_date):
@@ -332,7 +332,7 @@ def _gas_consumption_and_output_mt(from_date, to_date):
 		""",
 		(from_date, to_date),
 	)[0]
-	return flt(row[0]), flt(row[1]) / 1000.0
+	return flt(row[0]), flt(row[1])
 
 
 def get_gas_consumption(from_date, to_date):
@@ -348,13 +348,13 @@ def get_gas_consumption(from_date, to_date):
 
 def get_inventory_by_warehouse():
 	"""Inventory (Warehouse Wise) - live stock balance (`Bin.actual_qty`)
-	summed per warehouse, normalized to Ton. A warehouse's Bin rows can carry
-	different stock UOMs per item (Kg or Ton in this app) - summing raw
-	actual_qty across UOMs would silently mix units, so Kg is converted to
-	Ton before summing; any other UOM is kept as its own row (with its own
-	unit) instead of being folded into the Ton total. Bin is a live snapshot
-	(not date-ranged), so this ignores the dashboard's from/to filters - same
-	as the rest of the Inventory section."""
+	summed per warehouse, as Ton. A warehouse's Bin rows can carry different
+	stock UOMs per item (Kg or Ton in this app); Kg rows are folded into the
+	same Ton total as-is (values are already recorded in Ton going forward -
+	no unit conversion applied), while any other UOM is kept as its own row
+	(with its own unit). Bin is a live snapshot (not date-ranged), so this
+	ignores the dashboard's from/to filters - same as the rest of the
+	Inventory section."""
 	rows = frappe.db.sql(
 		"""
 		select b.warehouse, b.stock_uom, sum(b.actual_qty) qty
@@ -372,7 +372,7 @@ def get_inventory_by_warehouse():
 		if stock_uom == "Ton":
 			ton_totals[warehouse] = ton_totals.get(warehouse, 0) + qty
 		elif stock_uom == "Kg":
-			ton_totals[warehouse] = ton_totals.get(warehouse, 0) + qty / 1000.0
+			ton_totals[warehouse] = ton_totals.get(warehouse, 0) + qty
 		else:
 			other_rows.append({"warehouse": warehouse, "qty": round(qty, 2), "unit": stock_uom})
 
