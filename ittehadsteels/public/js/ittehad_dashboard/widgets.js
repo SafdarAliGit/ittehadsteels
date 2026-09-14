@@ -28,6 +28,48 @@ ittehad_dashboard.widgets = {
 		);
 	},
 
+	// compact line chart (This Week solid, Last Week dashed), e.g. the side
+	// panel next to a Production Trend bar chart
+	sparkline($target, { labels, this_week, last_week }) {
+		if (!this_week || !this_week.length) {
+			$target.html(ittehad_dashboard.widgets.empty_state("No data"));
+			return;
+		}
+		// Scaled tight to this data's own min/max, NOT forced down to a 0
+		// baseline: this week vs last week values are usually close together
+		// (e.g. 0.10-0.12), so a 0-anchored scale squashes both lines into a
+		// thin sliver near the top and they visually merge into one line.
+		// A tight domain spreads that same variation across the full height.
+		const all = [...this_week, ...(last_week || [])];
+		const max = Math.max(...all);
+		const min = Math.min(...all);
+		const range = max - min || 1;
+		const vb_w = 100,
+			vb_h = 100,
+			pad = 8;
+		const n = this_week.length;
+		const x = (i) => (n > 1 ? pad + (i / (n - 1)) * (vb_w - pad * 2) : vb_w / 2);
+		const y = (v) => vb_h - pad - ((v - min) / range) * (vb_h - pad * 2);
+		const to_points = (arr) => arr.map((v, i) => `${x(i)},${y(v)}`).join(" ");
+		const this_points = to_points(this_week);
+		const last_points = last_week && last_week.length ? to_points(last_week) : "";
+		// Rising (last day >= first day) reads green, falling reads red - same
+		// up/down semantics as isd-delta elsewhere on the dashboard.
+		const trend_color = this_week[this_week.length - 1] >= this_week[0] ? "var(--green)" : "var(--red)";
+		// vector-effect="non-scaling-stroke" - without it, preserveAspectRatio
+		//="none" stretches the 100x100 viewBox non-uniformly to fill the
+		// card's actual (taller-than-wide) box, and that same non-uniform
+		// scale gets applied to the stroke itself: it comes out thick and
+		// blobby at the rounded joins instead of a clean thin line. This
+		// keeps the stroke a true 1.5px in screen space regardless of scale.
+		$target.html(`
+			<svg viewBox="0 0 ${vb_w} ${vb_h}" preserveAspectRatio="none" class="isd-sparkline">
+				${last_points ? `<polyline points="${last_points}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>` : ""}
+				<polyline points="${this_points}" fill="none" stroke="${trend_color}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+			</svg>
+		`);
+	},
+
 	// donut chart built from a CSS conic-gradient, with a centered total label
 	donut($target, { items, value_key, label_key, total_label, colors }) {
 		colors = colors || ["var(--blue)", "var(--green)", "var(--orange)", "var(--purple)", "var(--gold)"];

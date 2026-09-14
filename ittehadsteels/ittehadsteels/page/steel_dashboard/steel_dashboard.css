@@ -151,27 +151,40 @@
 
 .isd-content { flex: 1; min-height: 0; padding: 18px 22px 40px; overflow-y: auto; max-width: 1920px; margin: 0 auto; width: 100%; }
 .isd-row { display: grid; gap: 14px; margin-bottom: 14px; }
-.isd-row.kpis { grid-template-columns: repeat(5, 1fr); }
+/* 12-column grid so the KPI row wraps 4 cards on row 1, 3 on row 2 - each
+ * row's cards span an even share of the 12 columns (4x3=12, 3x4=12), so the
+ * row-2 cards come out wider than row-1's rather than leaving a gap. */
+.isd-row.kpis { grid-template-columns: repeat(12, 1fr); }
+.isd-row.kpis .isd-kpi:nth-child(-n+4) { grid-column: span 3; }
+.isd-row.kpis .isd-kpi:nth-child(n+5) { grid-column: span 4; }
 .isd-row.kpis-2 { grid-template-columns: repeat(2, 1fr); max-width: 560px; }
 .isd-row.r2 { grid-template-columns: 1.2fr 1fr 1fr; }
-.isd-row.r3 { grid-template-columns: repeat(4, 1fr); }
-.isd-row.r4 { grid-template-columns: 1.2fr 1fr 1fr; }
+.isd-row.r2-trend { grid-template-columns: 1fr 1fr; }
+.isd-row.r2b { grid-template-columns: 1fr 1fr; }
+.isd-row.r2c { grid-template-columns: repeat(4, 1fr); }
 .isd-row.r1 { grid-template-columns: 1fr; }
 .isd-row.r1-narrow { grid-template-columns: 1fr; max-width: 420px; }
+
+/* Lets a kv_row's dynamically-filled panels (see render_kv_panels() in
+ * steel_dashboard.js) act as direct columns of the PARENT .isd-row grid
+ * instead of being boxed into one cell - used where a row mixes a static
+ * card (e.g. the donut) with kv panels, so all of them line up evenly. */
+.isd-kv-row.isd-kv-inline { display: contents; }
 
 /* Desktop-first breakpoints - covers common laptop/desktop widths (1280 up
  * to ultrawide); the sidebar (210px) + the theme's fixed nav rail (52/240px)
  * are subtracted from every viewport, so these trigger a bit earlier than
  * the raw content width would suggest. */
 @media (max-width: 1600px) {
-	.isd-row.r2, .isd-row.r4 { grid-template-columns: 1fr 1fr 1fr; }
+	.isd-row.r2 { grid-template-columns: 1fr 1fr 1fr; }
+	.isd-row.r2c { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 1400px) {
 	.isd-row.kpis { grid-template-columns: repeat(3, 1fr); }
-	.isd-row.r3 { grid-template-columns: repeat(2, 1fr); }
+	.isd-row.kpis .isd-kpi { grid-column: span 1; }
 }
 @media (max-width: 1200px) {
-	.isd-row.r2, .isd-row.r4 { grid-template-columns: 1fr 1fr; }
+	.isd-row.r2 { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 992px) {
 	.isd-sidebar { width: 64px; flex-basis: 64px; padding: 14px 8px; }
@@ -181,11 +194,12 @@
 	.isd-row.kpis-2 { max-width: none; }
 }
 @media (max-width: 700px) {
-	.isd-row.kpis, .isd-row.kpis-2, .isd-row.r2, .isd-row.r3, .isd-row.r4 { grid-template-columns: 1fr; }
+	.isd-row.kpis, .isd-row.kpis-2, .isd-row.r2, .isd-row.r2-trend, .isd-row.r2b, .isd-row.r2c { grid-template-columns: 1fr; }
+	.isd-row.kpis .isd-kpi { grid-column: span 1; }
 }
 
 .isd-card { background: var(--panel); border: 1px solid var(--panel-border); border-radius: 10px; padding: 14px 16px; min-width: 0; }
-.isd-card-title { font-size: 11px; letter-spacing: .6px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; font-weight: 600; }
+.isd-card-title { font-size: 11px; letter-spacing: .6px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; font-weight: 700; }
 .isd-empty { color: var(--muted); font-size: 12px; display: flex; align-items: center; justify-content: center; height: 100%; min-height: 60px; }
 
 /* ------------------------------------------------------------------ kpis */
@@ -223,6 +237,18 @@
 .isd-legend { display: flex; align-items: center; gap: 14px; font-size: 11px; color: var(--muted); margin-bottom: 8px; }
 .isd-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; }
 .isd-legend .dash { display: inline-block; width: 14px; border-top: 2px dashed var(--muted); margin-right: 5px; vertical-align: middle; }
+
+/* Production Trend cards: chart in the left 70%, a radial "this week vs
+ * last week" gauge in the right 30% (see render_trend_gauge() in
+ * steel_dashboard.js). */
+.isd-trend-split { display: flex; gap: 14px; align-items: center; }
+.isd-trend-main { flex: 0 0 70%; min-width: 0; }
+.isd-trend-side { flex: 0 0 30%; min-width: 0; display: flex; align-items: center; justify-content: center; }
+.isd-trend-side .isd-sparkline { width: 100%; height: 170px; }
+@media (max-width: 700px) {
+	.isd-trend-split { flex-direction: column; }
+	.isd-trend-main, .isd-trend-side { flex-basis: auto; width: 100%; }
+}
 
 /* -------------------------------------------------------------- donut */
 .isd-donut-wrap { display: flex; align-items: center; gap: 18px; min-height: 130px; }

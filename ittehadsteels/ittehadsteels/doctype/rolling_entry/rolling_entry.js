@@ -6,7 +6,7 @@ frappe.ui.form.on("Rolling Entry", {
 		frm.set_query("item_code", "raw_items", function () {
 			return {
 				filters: {
-					item_group: "Billets",
+					item_group: "Products",
 				},
 			};
 		});

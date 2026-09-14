@@ -1,6 +1,6 @@
 """
 Placeholder data for dashboard sections that have no backing doctype yet
-(Quality, Maintenance, Energy, Safety, and a few efficiency gauges).
+(Quality, Maintenance, Safety, and a few efficiency gauges).
 
 This is the ONLY place in the dashboard that returns made-up numbers.
 When a real module/doctype is added for one of these, replace the matching
@@ -18,31 +18,12 @@ def get_quality():
 	}
 
 
-def get_inventory():
-	# TODO: once warehouse/item-group conventions are finalised, replace with
-	# a `Bin` aggregate grouped by item group (Raw Material / WIP / Finished Goods).
-	return {
-		"raw_materials": 18650,
-		"work_in_process": 3245,
-		"finished_goods": 7980,
-		"total": 29875,
-	}
-
-
 def get_maintenance():
 	return {
 		"planned_maintenance": 92,
 		"breakdown_hrs": 16.5,
 		"mtbf": 128,
 		"mttr": 2.6,
-	}
-
-
-def get_energy():
-	return {
-		"specific_energy_kwh_mt": 595,
-		"total_energy_cost_m": 18.6,
-		"energy_efficiency": 1.68,
 	}
 
 

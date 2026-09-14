@@ -36,20 +36,25 @@ const KPI_COLORS = { blue: "var(--blue)", green: "var(--green)", orange: "var(--
 // row shows. `null` = show the full list the backend returned, in order.
 const KPI_ROWS = {
 	dashboard: null,
-	production: ["production_mt", "heats"],
+	production: ["bar_production_mt", "heats"],
 	sales: ["sales_mt", "revenue_m"],
 	finance: ["revenue_m", "gross_margin_pct"],
 };
 
 // Same idea as KPI_ROWS, but for the label/value panels get_kv_panels()
-// returns (Quality/Inventory/Maintenance/Energy). Each single-topic section
-// shows just its own panel; "dashboard" shows all of them.
+// returns (Quality/Maintenance/Energy (Power)/Energy (Gas) - Inventory's
+// demo panel was replaced by the real warehouse_inventory_card_html() table,
+// see section_layout()). Both energy panels are live
+// (steel_dashboard.py::get_power_consumption()/get_gas_consumption());
+// Quality and Maintenance still have no backing doctype. Each single-topic
+// section shows just its own panel(s); "dashboard" shows all of them except
+// Quality and Maintenance, which each have their own dedicated sidebar
+// section.
 const KV_PANEL_ROWS = {
-	dashboard: null,
-	inventory: ["inventory"],
+	dashboard: ["energy_power", "energy_gas"],
 	quality: ["quality"],
 	maintenance: ["maintenance"],
-	energy: ["energy"],
+	energy: ["energy_power", "energy_gas"],
 };
 
 const NAV_ITEMS = [
@@ -118,23 +123,47 @@ class IttehadDashboard {
 		`;
 	}
 
-	trend_card_html() {
+	// The bar chart lives in the left 70%; the right 30% is a compact line
+	// chart (This Week solid, Last Week dashed) of the same data - see
+	// widgets.sparkline() / render_trend_sparkline().
+	trend_card_html(title, target_cls, spark_cls) {
 		return `
 			<div class="isd-card">
-				<div class="isd-card-title">Production Trend (MT)</div>
-				<div class="isd-legend">
-					<span><span class="dot" style="background:var(--blue)"></span>This Week</span>
-					<span><span class="dash"></span>Last Week</span>
+				<div class="isd-card-title">${title}</div>
+				<div class="isd-trend-split">
+					<div class="isd-trend-main">
+						<div class="isd-legend">
+							<span><span class="dot" style="background:var(--blue)"></span>This Week</span>
+							<span><span class="dash"></span>Last Week</span>
+						</div>
+						<div class="isd-bars ${target_cls}"></div>
+					</div>
+					<div class="isd-trend-side ${spark_cls}"></div>
 				</div>
-				<div class="isd-bars isd-trend"></div>
 			</div>
 		`;
+	}
+
+	furnace_trend_card_html() {
+		return this.trend_card_html(
+			"Production Trend (Furnace) - Bar Production (Ton)",
+			"isd-trend-furnace",
+			"isd-trend-spark-furnace"
+		);
+	}
+
+	deformed_bar_trend_card_html() {
+		return this.trend_card_html(
+			"Production Trend (Deformed Bar) - Bar Production (Ton)",
+			"isd-trend-deformed-bar",
+			"isd-trend-spark-deformed-bar"
+		);
 	}
 
 	donut_card_html() {
 		return `
 			<div class="isd-card">
-				<div class="isd-card-title">Production by Product (MT)</div>
+				<div class="isd-card-title">Production By Product Group (Ton)</div>
 				<div class="isd-donut-wrap isd-donut-target"></div>
 			</div>
 		`;
@@ -162,13 +191,13 @@ class IttehadDashboard {
 		`;
 	}
 
-	raw_materials_card_html() {
+	warehouse_inventory_card_html() {
 		return `
 			<div class="isd-card">
-				<div class="isd-card-title">Top Raw Material Consumption (This Week)</div>
+				<div class="isd-card-title">Inventory (Warehouse Wise)</div>
 				<table class="isd-table">
-					<thead><tr><th>Material</th><th>Consumed (kg)</th><th>vs Last Week</th></tr></thead>
-					<tbody class="isd-raw-materials"></tbody>
+					<thead><tr><th>Warehouse</th><th>Stock Balance</th><th>Unit</th></tr></thead>
+					<tbody class="isd-warehouse-inventory"></tbody>
 				</table>
 			</div>
 		`;
@@ -178,7 +207,10 @@ class IttehadDashboard {
 		return `
 			<div class="isd-card">
 				<div class="isd-card-title">Sales by Product</div>
-				<div class="isd-sales-by-product"></div>
+				<table class="isd-table">
+					<thead><tr><th>Product</th><th>Sales</th><th>Unit</th></tr></thead>
+					<tbody class="isd-sales-by-product"></tbody>
+				</table>
 			</div>
 		`;
 	}
@@ -315,26 +347,23 @@ class IttehadDashboard {
 		return {
 			dashboard: [
 				{ cls: "kpis", kpi_row: "dashboard" },
-				{ cls: "r2", cards: [this.trend_card_html(), this.donut_card_html(), this.gauges_card_html()] },
-				{ cls: "r3", kv_row: "dashboard" },
-				{
-					cls: "r4",
-					cards: [this.raw_materials_card_html(), this.sales_by_product_card_html(), this.safety_card_html()],
-				},
+				{ cls: "r2c", cards: [this.donut_card_html(), this.warehouse_inventory_card_html()], kv_row: "dashboard" },
+				{ cls: "r2-trend", cards: [this.furnace_trend_card_html(), this.deformed_bar_trend_card_html()] },
+				{ cls: "r1", cards: [this.sales_by_product_card_html()] },
 			],
 			production: [
 				{ cls: "kpis-2", kpi_row: "production" },
-				{ cls: "r2", cards: [this.trend_card_html(), this.donut_card_html(), this.gauges_card_html()] },
-				{ cls: "r1", cards: [this.raw_materials_card_html()] },
+				{ cls: "r2b", cards: [this.donut_card_html(), this.gauges_card_html()] },
+				{ cls: "r2-trend", cards: [this.furnace_trend_card_html(), this.deformed_bar_trend_card_html()] },
 			],
 			sales: [
 				{ cls: "kpis-2", kpi_row: "sales" },
 				{ cls: "r1", cards: [this.sales_by_product_card_html()] },
 			],
-			inventory: [{ cls: "r1", kv_row: "inventory" }],
+			inventory: [{ cls: "r1", cards: [this.warehouse_inventory_card_html()] }],
 			quality: [{ cls: "r1", kv_row: "quality" }],
 			maintenance: [{ cls: "r1", kv_row: "maintenance" }],
-			energy: [{ cls: "r1", kv_row: "energy" }],
+			energy: [{ cls: "r2b", kv_row: "energy" }],
 			finance: [
 				{ cls: "kpis-2", kpi_row: "finance" },
 				{
@@ -370,6 +399,16 @@ class IttehadDashboard {
 		const layout = this.section_layout();
 		const row_html = (r) => {
 			if (r.kpi_row) return `<div class="isd-row ${r.cls} isd-kpi-row" data-kpi-row="${r.kpi_row}"></div>`;
+			// A row with both `cards` and `kv_row` mixes static card(s) with
+			// dynamic kv panels as siblings in the SAME css grid: the kv
+			// panels render into a nested `isd-kv-inline` wrapper (kept
+			// `display:contents` in CSS) instead of the row div itself, so
+			// render_kv_panels()'s find(".isd-kv-row") + .html() still works
+			// unchanged while the panels line up as their own grid columns
+			// next to the static card(s) - see steel_dashboard.css.
+			if (r.kv_row && r.cards) {
+				return `<div class="isd-row ${r.cls}">${r.cards.join("")}<div class="isd-kv-row isd-kv-inline" data-kv-row="${r.kv_row}"></div></div>`;
+			}
 			if (r.kv_row) return `<div class="isd-row ${r.cls} isd-kv-row" data-kv-row="${r.kv_row}"></div>`;
 			return `<div class="isd-row ${r.cls}">${r.cards.join("")}</div>`;
 		};
@@ -441,16 +480,23 @@ class IttehadDashboard {
 
 		this.render_kpi_rows(data.kpi);
 
-		w.bars(this.$container.find(".isd-trend"), {
-			labels: data.production_trend.labels,
-			values: data.production_trend.this_week,
+		w.bars(this.$container.find(".isd-trend-furnace"), {
+			labels: data.production_trend_furnace.labels,
+			values: data.production_trend_furnace.this_week,
 		});
+		w.sparkline(this.$container.find(".isd-trend-spark-furnace"), data.production_trend_furnace);
+
+		w.bars(this.$container.find(".isd-trend-deformed-bar"), {
+			labels: data.production_trend_deformed_bar.labels,
+			values: data.production_trend_deformed_bar.this_week,
+		});
+		w.sparkline(this.$container.find(".isd-trend-spark-deformed-bar"), data.production_trend_deformed_bar);
 
 		w.donut(this.$container.find(".isd-donut-target"), {
 			items: data.production_by_product,
 			value_key: "qty_mt",
 			label_key: "label",
-			total_label: "MT Total",
+			total_label: "Ton Total",
 		});
 
 		// data.gauges is already [{key, label, value, is_demo}], see
@@ -470,13 +516,8 @@ class IttehadDashboard {
 			["Safety Observations", data.demo.safety.observations],
 		]);
 
-		this.render_raw_materials(data.top_raw_materials);
-
-		w.hbars(this.$container.find(".isd-sales-by-product"), {
-			items: data.sales_by_product,
-			label_key: "label",
-			value_key: "qty",
-		});
+		this.render_inventory_by_warehouse(data.inventory_by_warehouse);
+		this.render_sales_by_product(data.sales_by_product);
 	}
 
 	// kpi_list is whatever steel_dashboard.py::get_kpis() returned - however
@@ -509,20 +550,44 @@ class IttehadDashboard {
 		});
 	}
 
-	render_raw_materials(rows) {
-		const $body = this.$container.find(".isd-raw-materials");
+	// Radial gauge in the trend card's 30% side section: this week's total
+	// (sum of the bar chart's own values) as a % of last week's total.
+	// Clamped 0-100 by gauge_svg() like every other gauge on this dashboard,
+	// so a week that beats last week still reads as a full gauge.
+	render_inventory_by_warehouse(rows) {
+		const $body = this.$container.find(".isd-warehouse-inventory");
 		const w = ittehad_dashboard.widgets;
 		if (!rows || !rows.length) {
-			$body.html(`<tr><td colspan="3">${w.empty_state("No consumption data for this period")}</td></tr>`);
+			$body.html(`<tr><td colspan="3">${w.empty_state("No stock balance found")}</td></tr>`);
 			return;
 		}
 		$body.html(
 			rows
 				.map(
 					(r) => `<tr>
-						<td>${r.material}</td>
-						<td>${frappe.format(r.consumed_kg, { fieldtype: "Float", precision: 1 }, { only_value: 1 })}</td>
-						<td>${w.delta_html(r.delta_pct)}</td>
+						<td>${r.warehouse}</td>
+						<td>${frappe.format(r.qty, { fieldtype: "Float", precision: 2 }, { only_value: 1 })}</td>
+						<td>${r.unit}</td>
+					</tr>`
+				)
+				.join("")
+		);
+	}
+
+	render_sales_by_product(rows) {
+		const $body = this.$container.find(".isd-sales-by-product");
+		const w = ittehad_dashboard.widgets;
+		if (!rows || !rows.length) {
+			$body.html(`<tr><td colspan="3">${w.empty_state("No sales data for this period")}</td></tr>`);
+			return;
+		}
+		$body.html(
+			rows
+				.map(
+					(r) => `<tr>
+						<td>${r.label}</td>
+						<td>${frappe.format(r.qty, { fieldtype: "Float", precision: 1 }, { only_value: 1 })}</td>
+						<td>${r.unit}</td>
 					</tr>`
 				)
 				.join("")
@@ -534,9 +599,6 @@ class IttehadDashboard {
 		if (!this.data) return;
 		const rows = [["Metric", "Value"]];
 		this.data.kpi.forEach((k) => rows.push([k.label, k.value]));
-		rows.push([]);
-		rows.push(["Material", "Consumed (kg)", "Delta %"]);
-		this.data.top_raw_materials.forEach((r) => rows.push([r.material, r.consumed_kg, r.delta_pct]));
 
 		const blob = new Blob([rows.map((r) => r.join(",")).join("\n")], { type: "text/csv" });
 		const link = document.createElement("a");
