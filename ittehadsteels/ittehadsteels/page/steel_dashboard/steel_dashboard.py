@@ -1560,27 +1560,54 @@ def export_report_excel(title, columns, rows, subtitle=None):
 	already computed client-side from the same get_dashboard_data() payload
 	every other section renders from (see build_report()), so this only
 	formats it, it doesn't recompute anything. `rows` is a list of
-	{label, value, indent, bold} (the same shape the Finance Report's
-	hierarchical Profit and Loss Statement uses, see
-	get_profit_and_loss_statement()) - indent renders as leading spaces
-	(openpyxl's write-only workbook has no per-cell style hook for real
-	indentation/bold, unlike the PDF export below)."""
+	{label, value, indent, bold, section} (the same shape the Finance
+	Report's hierarchical Profit and Loss Statement uses, see
+	get_profit_and_loss_statement()) - indent renders as leading spaces.
+	A regular (not write-only) Workbook is built directly here rather than
+	via frappe.utils.xlsxutils.make_xlsx(), since a `section` row (the
+	dashboard Export dialog's per-section title, see build_export_rows() in
+	steel_dashboard.js) needs a real filled/bold cell to stand out from its
+	own section's internal bold sub-headers, and write-only sheets have no
+	per-cell style hook for that."""
 	columns, rows = _parse_report_payload(columns, rows)
 
-	from frappe.utils.xlsxutils import make_xlsx
+	import openpyxl
+	from openpyxl.styles import Font, PatternFill
 
-	data = [[title]]
+	wb = openpyxl.Workbook()
+	ws = wb.active
+	ws.title = "Report"
+
+	ws.append([title])
+	ws.cell(row=ws.max_row, column=1).font = Font(bold=True, size=14)
 	if subtitle:
-		data.append([subtitle])
-	data.append([])
-	data.append(columns)
+		ws.append([subtitle])
+	ws.append([])
+	ws.append(columns)
+	for cell in ws[ws.max_row]:
+		cell.font = Font(bold=True)
+
+	section_fill = PatternFill(start_color="DCE6F5", end_color="DCE6F5", fill_type="solid")
 	for r in rows:
 		indent = cint(r.get("indent", 0))
 		label = ("    " * indent) + str(r.get("label", ""))
 		value = r.get("value", "")
-		data.append([label, "" if value is None else value])
+		ws.append([label, "" if value is None else value])
+		if r.get("section"):
+			for cell in ws[ws.max_row]:
+				cell.font = Font(bold=True, size=12, color="1D4ED8")
+				cell.fill = section_fill
+		elif r.get("bold"):
+			for cell in ws[ws.max_row]:
+				cell.font = Font(bold=True)
 
-	xlsx_file = make_xlsx(data, "Report")
+	ws.column_dimensions["A"].width = 46
+	ws.column_dimensions["B"].width = 24
+
+	from io import BytesIO
+
+	xlsx_file = BytesIO()
+	wb.save(xlsx_file)
 	frappe.response["filename"] = f"{title}.xlsx"
 	frappe.response["filecontent"] = xlsx_file.getvalue()
 	frappe.response["type"] = "download"
@@ -1601,14 +1628,25 @@ def export_report_pdf(title, columns, rows, subtitle=None):
 	from frappe.utils.pdf import get_pdf
 
 	company, logo_data_uri = _company_header()
-	logo_cell = f'<td style="text-align:right;vertical-align:top;"><img src="{logo_data_uri}" style="height:46px;" /></td>' if logo_data_uri else ""
+	logo_cell = f'<td style="text-align:right;vertical-align:top;"><img src="{logo_data_uri}" style="height:64px;" /></td>' if logo_data_uri else ""
 
 	thead = "".join(f"<th>{escape_html(str(c))}</th>" for c in columns)
 	body_rows = []
 	for r in rows:
+		label = escape_html(str(r.get("label", "")))
+		# A `section` row (the dashboard Export dialog's per-section title,
+		# see build_export_rows() in steel_dashboard.js) is highlighted as
+		# its own full-width band rather than just another bold cell, so
+		# several exported sections stay visually distinct from each other
+		# and from their own internal bold sub-headers (e.g. "Finance KPIs").
+		if r.get("section"):
+			body_rows.append(
+				f'<tr><td colspan="{len(columns)}" style="background:#eef3fb;border-bottom:2px solid #3b82f6;'
+				f'padding:8px 10px;font-size:14px;font-weight:700;color:#1d4ed8;">{label}</td></tr>'
+			)
+			continue
 		indent = cint(r.get("indent", 0))
 		style = "font-weight:700;" if r.get("bold") else ""
-		label = escape_html(str(r.get("label", "")))
 		value = r.get("value", "")
 		value = escape_html("" if value is None else str(value))
 		body_rows.append(
@@ -1622,8 +1660,8 @@ def export_report_pdf(title, columns, rows, subtitle=None):
 		<table style="width:100%;border-collapse:collapse;font-family:sans-serif;border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:16px;">
 			<tr>
 				<td style="vertical-align:top;">
-					<div style="font-size:11px;color:#666;">{escape_html(company)}</div>
-					<h2 style="margin:2px 0 0;">{escape_html(title)}</h2>
+					<div style="font-size:22px;font-weight:700;color:#111;">{escape_html(company)}</div>
+					<h2 style="margin:2px 0 0;font-size:16px;font-weight:600;">{escape_html(title)}</h2>
 					{subtitle_html}
 				</td>
 				{logo_cell}

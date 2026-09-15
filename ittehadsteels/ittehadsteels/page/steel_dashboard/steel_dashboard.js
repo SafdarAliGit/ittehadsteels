@@ -815,7 +815,7 @@ class IttehadDashboard {
 		this.$container.on("click", ".isd-nav li", (e) => this.set_section($(e.currentTarget).data("key")));
 		// Date range changes are handled by the air-datepicker widgets set
 		// up in init_date_pickers() -> on_date_picked().
-		this.$container.on("click", ".isd-export-btn", () => this.export_csv());
+		this.$container.on("click", ".isd-export-btn", () => this.open_export_dialog());
 		// Delegated (not bound once at shell-build time) - render_settings()
 		// replaces this button's markup every time settings data reloads.
 		this.$container.on("click", ".isd-settings-save-btn", () => this.save_settings());
@@ -1287,9 +1287,9 @@ class IttehadDashboard {
 						th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; }
 						th { background: #f0f0f0; }
 						.isd-print-header { display: flex; align-items: flex-start; justify-content: space-between; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 18px; }
-						.isd-print-header img { height: 48px; }
-						.isd-print-company { color: #666; font-size: 12px; }
-						h2 { margin: 2px 0; }
+						.isd-print-header img { height: 64px; }
+						.isd-print-company { color: #111; font-size: 22px; font-weight: 700; }
+						h2 { margin: 2px 0; font-size: 16px; font-weight: 600; }
 						.isd-print-range { color: #666; font-size: 11px; }
 					</style>
 				</head>
@@ -1461,15 +1461,150 @@ class IttehadDashboard {
 	}
 
 	// -------------------------------------------------------------- export
-	export_csv() {
+	// Topbar "Export" button - a dialog offering every export format
+	// (CSV/Excel/PDF) plus a dynamic checklist of every exportable section.
+	// The checklist is built straight from REPORTS (the same array that
+	// drives the Reports section's own per-report cards/build_report()), so
+	// it can never drift out of sync with what sections actually exist:
+	// add/remove a REPORTS entry and this list follows automatically. The
+	// Reports section itself has no REPORTS entry of its own (it's the
+	// thing REPORTS builds, not a section REPORTS describes), so it's
+	// excluded with no special-casing needed; Dashboard/Settings are left
+	// out too since neither has a build_report() case - they're an
+	// aggregate overview and a config form, not their own report.
+	open_export_dialog() {
 		if (!this.data) return;
-		const rows = [["Metric", "Value"]];
-		this.data.kpi.forEach((k) => rows.push([k.label, k.value]));
 
-		const blob = new Blob([rows.map((r) => r.join(",")).join("\n")], { type: "text/csv" });
-		const link = document.createElement("a");
-		link.href = URL.createObjectURL(blob);
-		link.download = `dashboard_${this.state.from_date}_to_${this.state.to_date}.csv`;
-		link.click();
+		const get_checked_keys = () =>
+			dialog.$wrapper
+				.find(".isd-export-section-check:checked")
+				.map((_, el) => $(el).data("key"))
+				.get();
+
+		const dialog = new frappe.ui.Dialog({
+			title: "Export Dashboard",
+			fields: [
+				{
+					fieldtype: "Select",
+					fieldname: "format",
+					label: "Format",
+					options: [
+						{ label: "PDF", value: "pdf" },
+						{ label: "Excel", value: "excel" },
+						{ label: "CSV", value: "csv" },
+					],
+					default: "pdf",
+					reqd: 1,
+				},
+				{ fieldtype: "Section Break", label: "Sections" },
+				{ fieldtype: "HTML", fieldname: "sections_html" },
+			],
+			primary_action_label: "Export",
+			primary_action: (values) => {
+				const keys = get_checked_keys();
+				if (!keys.length) {
+					frappe.msgprint(__("Select at least one section to export."));
+					return;
+				}
+				this.export_dashboard(values.format, keys);
+				dialog.hide();
+			},
+		});
+
+		const rows_html = REPORTS.map(
+			(r) => `
+				<label class="isd-export-section-row">
+					<input type="checkbox" class="isd-export-section-check" data-key="${r.key}" checked />
+					<span class="isd-export-section-icon">${ittehad_dashboard.icon(r.icon)}</span>
+					<span>${r.label}</span>
+				</label>`
+		).join("");
+
+		dialog.fields_dict.sections_html.$wrapper.html(`
+			<div class="isd-export-sections">
+				<div class="isd-export-select-all">
+					<a href="#" class="isd-export-all-link">${__("Select All")}</a>
+					<span>·</span>
+					<a href="#" class="isd-export-none-link">${__("Select None")}</a>
+				</div>
+				<div class="isd-export-section-list">${rows_html}</div>
+			</div>
+		`);
+
+		dialog.$wrapper.find(".isd-export-all-link").on("click", (e) => {
+			e.preventDefault();
+			dialog.$wrapper.find(".isd-export-section-check").prop("checked", true);
+		});
+		dialog.$wrapper.find(".isd-export-none-link").on("click", (e) => {
+			e.preventDefault();
+			dialog.$wrapper.find(".isd-export-section-check").prop("checked", false);
+		});
+
+		dialog.show();
+	}
+
+	// Concatenates build_report() (the exact same per-section builder the
+	// Reports section's own cards use) for every checked section into one
+	// hierarchical rowset - each section gets its own bold, indent-0 title
+	// row, with that section's own rows (already bold section/detail rows
+	// of their own) nested one level deeper beneath it, so multiple
+	// sections stay visually distinct instead of running together. Columns
+	// are a generic Particulars/Value pair since different sections'
+	// build_report() column headers (e.g. Finance's "Amount (PKR)") don't
+	// apply once sections are mixed together.
+	// Each section's title row carries `section: true` (on top of bold/
+	// indent-0) so it can be told apart from that section's OWN bold
+	// sub-headers (e.g. Finance's "Finance KPIs") once they're all mixed
+	// together - the renderers below (PDF's highlighted band, Excel's
+	// filled row, the HTML preview) key off this flag to actually highlight
+	// it, not just bold it.
+	build_export_rows(keys) {
+		const rows = [];
+		keys.forEach((key) => {
+			const rep = this.build_report(key);
+			rows.push({ label: rep.title, value: "", indent: 0, bold: true, section: true });
+			rep.rows.forEach((r) => rows.push({ label: r.label, value: r.value, indent: r.indent + 1, bold: r.bold }));
+		});
+		return rows;
+	}
+
+	// kind: "csv" | "excel" | "pdf". CSV is built and downloaded entirely
+	// client-side (no backend endpoint for it, same as the old export_csv()
+	// this replaces); Excel/PDF reuse export_report_excel()/
+	// export_report_pdf() as-is - both already take a generic
+	// title/columns/rows/subtitle payload (see their docstrings), not one
+	// tied to a specific report, so the combined multi-section export needs
+	// no backend change at all.
+	export_dashboard(kind, keys) {
+		const rows = this.build_export_rows(keys);
+		const columns = ["Particulars", "Value"];
+		const range = `${this.format_date_display(this.state.from_date)} - ${this.format_date_display(this.state.to_date)}`;
+		const generated = moment().format("DD/MM/YYYY hh:mm A");
+		const title = "Dashboard Export";
+		const subtitle = `${range}  ·  Generated ${generated}`;
+
+		if (kind === "csv") {
+			const csv_cell = (v) => `"${String(v === null || v === undefined ? "" : v).replace(/"/g, '""')}"`;
+			const csv_rows = [columns];
+			// A CSV has no color/fill to highlight with, so a blank line ahead
+			// of every `section` row (except the very first) is the closest a
+			// plain-text format gets to setting sections apart from each other.
+			rows.forEach((r, i) => {
+				if (r.section && i > 0) csv_rows.push([]);
+				csv_rows.push([`${"    ".repeat(r.indent)}${r.label}`, r.value]);
+			});
+			const blob = new Blob([csv_rows.map((r) => r.map(csv_cell).join(",")).join("\n")], { type: "text/csv" });
+			const link = document.createElement("a");
+			link.href = URL.createObjectURL(blob);
+			link.download = `dashboard_export_${this.state.from_date}_to_${this.state.to_date}.csv`;
+			link.click();
+			return;
+		}
+
+		const method =
+			kind === "excel"
+				? "ittehadsteels.ittehadsteels.page.steel_dashboard.steel_dashboard.export_report_excel"
+				: "ittehadsteels.ittehadsteels.page.steel_dashboard.steel_dashboard.export_report_pdf";
+		open_url_post(`/api/method/${method}`, { title, columns: JSON.stringify(columns), rows: JSON.stringify(rows), subtitle }, true);
 	}
 }

@@ -407,8 +407,8 @@
  * the PDF/print output - see export_report_pdf()/print_report() - so the
  * on-screen report reads as the same document you'd get from either. */
 .isd-report-header { display: flex; align-items: center; gap: 12px; }
-.isd-report-logo { width: 44px; height: 44px; object-fit: contain; border-radius: 6px; background: #fff; padding: 3px; }
-.isd-report-company { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+.isd-report-logo { width: 60px; height: 60px; object-fit: contain; border-radius: 6px; background: #fff; padding: 3px; }
+.isd-report-company { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: .3px; }
 .isd-report-range { font-size: 12px; color: var(--muted); margin-top: 2px; }
 .isd-report-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .isd-report-search {
@@ -432,3 +432,28 @@
 
 .isd-footnote { flex-shrink: 0; color: var(--muted); font-size: 11px; padding: 10px 22px 20px; border-top: 1px solid var(--panel-border); }
 .isd-demo-tag { font-size: 9px; color: var(--muted); background: rgba(255, 255, 255, .06); border-radius: 4px; padding: 1px 5px; margin-left: 6px; }
+
+/* Export dialog (open_export_dialog()) - rendered inside a frappe.ui.Dialog
+ * modal, which lives outside .isd-dash in the DOM, so this can't rely on
+ * that block's --panel/--text/etc custom properties (they'd resolve to
+ * nothing there); it uses Frappe desk's own theme-aware variables instead,
+ * so it still matches light/dark mode. */
+.isd-export-sections { margin-top: 4px; }
+.isd-export-select-all { display: flex; align-items: center; gap: 8px; font-size: 12px; margin-bottom: 10px; }
+.isd-export-select-all a { color: var(--text-muted); }
+.isd-export-select-all span { color: var(--text-muted); }
+.isd-export-section-list {
+	display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px 12px;
+	border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 12px;
+}
+.isd-export-section-row {
+	display: flex; align-items: center; gap: 8px; padding: 5px 4px; margin: 0;
+	font-weight: 400; cursor: pointer; border-radius: 5px;
+}
+.isd-export-section-row:hover { background: var(--fg-color); }
+.isd-export-section-row input { margin: 0; }
+.isd-export-section-icon { width: 15px; height: 15px; flex: 0 0 15px; color: var(--text-muted); }
+.isd-export-section-icon svg { width: 100%; height: 100%; }
+@media (max-width: 500px) {
+	.isd-export-section-list { grid-template-columns: 1fr; }
+}
