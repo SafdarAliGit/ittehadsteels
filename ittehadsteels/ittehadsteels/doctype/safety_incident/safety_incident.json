@@ -1,0 +1,103 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2026-09-15 00:00:00.000000",
+ "description": "Log of Lost Time Injuries, other Recordable Incidents, and Near Miss/Observation reports - the real record the Safety section's LTIFR/TRIR/Safety Observations actuals are calculated from (see steel_dashboard.py::get_safety()), in place of the flat demo numbers it used to show.",
+ "doctype": "DocType",
+ "document_type": "Other",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "incident_date",
+  "incident_type",
+  "column_break_1",
+  "employee",
+  "lost_days",
+  "description_section",
+  "description"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "SI-.YYYY.-",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "incident_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "incident_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Type",
+   "options": "Lost Time Injury\nRecordable Incident\nNear Miss / Observation",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee"
+  },
+  {
+   "depends_on": "eval:doc.incident_type == 'Lost Time Injury'",
+   "description": "Work days lost to this injury - for reference only, not used in the LTIFR/TRIR frequency calculation (those count incidents, not days).",
+   "fieldname": "lost_days",
+   "fieldtype": "Int",
+   "label": "Lost Days",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "description_section",
+   "fieldtype": "Section Break",
+   "label": "Description"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  }
+ ],
+ "icon": "fa fa-shield",
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-09-15 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Ittehadsteels",
+ "name": "Safety Incident",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

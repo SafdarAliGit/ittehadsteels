@@ -1,0 +1,225 @@
+{
+ "actions": [],
+ "creation": "2026-09-15 00:00:00.000000",
+ "description": "Inputs the Steel Dashboard needs to compute Capacity Utilization, OEE, and the Quality/Maintenance target lines shown alongside their actuals - one place to tune them instead of hardcoding them in code.",
+ "doctype": "DocType",
+ "document_type": "Other",
+ "engine": "InnoDB",
+ "field_order": [
+  "capacity_oee_section",
+  "rated_melting_capacity_mt",
+  "standard_cycle_time_min",
+  "column_break_cap_1",
+  "planned_production_hours",
+  "working_days_per_week",
+  "quality_targets_section",
+  "target_first_pass_yield",
+  "column_break_qual_1",
+  "target_rejection_rate",
+  "column_break_qual_2",
+  "target_inspection_pass_rate",
+  "maintenance_targets_section",
+  "target_planned_maintenance",
+  "column_break_maint_1",
+  "target_mtbf_hours",
+  "column_break_maint_2",
+  "target_mttr_hours",
+  "safety_targets_section",
+  "man_hours_per_day",
+  "column_break_safe_1",
+  "target_ltifr",
+  "target_trir",
+  "column_break_safe_2",
+  "target_safety_observations"
+ ],
+ "fields": [
+  {
+   "fieldname": "capacity_oee_section",
+   "fieldtype": "Section Break",
+   "label": "Capacity & OEE"
+  },
+  {
+   "default": "150",
+   "description": "Rated output of the melting furnace(s) per calendar day, in Ton - the denominator for Capacity Utilization (Billet Production / this figure, prorated across the selected date range and Working Days per Week).",
+   "fieldname": "rated_melting_capacity_mt",
+   "fieldtype": "Float",
+   "label": "Rated Melting Capacity (Ton/Day)",
+   "non_negative": 1,
+   "precision": "2"
+  },
+  {
+   "default": "2",
+   "description": "Ideal time to melt one Ton under normal conditions, in minutes (not per heat - a 2-hour/120-min heat that melts ~80 Ton is ~1.5 min/Ton) - drives OEE's Performance factor (ideal time for the Ton actually produced, against the time actually spent melting per Melting Entry.total_melting_time).",
+   "fieldname": "standard_cycle_time_min",
+   "fieldtype": "Float",
+   "label": "Standard Cycle Time (Min/Ton)",
+   "non_negative": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_cap_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "24",
+   "description": "Hours per day the plant is planned to run - drives OEE's Availability factor (actual melting time recorded against this planned time).",
+   "fieldname": "planned_production_hours",
+   "fieldtype": "Float",
+   "label": "Planned Production Hours (Per Day)",
+   "non_negative": 1,
+   "precision": "1"
+  },
+  {
+   "default": "7",
+   "description": "Days per week the plant operates - prorates Rated Melting Capacity and Planned Production Hours across the dashboard's own date range instead of assuming every calendar day is a working day.",
+   "fieldname": "working_days_per_week",
+   "fieldtype": "Int",
+   "label": "Working Days per Week",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "quality_targets_section",
+   "fieldtype": "Section Break",
+   "label": "Quality Targets"
+  },
+  {
+   "default": "95",
+   "description": "Target shown alongside the Quality panel's First Pass Yield actual.",
+   "fieldname": "target_first_pass_yield",
+   "fieldtype": "Percent",
+   "label": "Target First Pass Yield"
+  },
+  {
+   "fieldname": "column_break_qual_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "3",
+   "description": "Target shown alongside the Quality panel's Rejection Rate actual - lower is better, so the dashboard flags the actual only when it exceeds this.",
+   "fieldname": "target_rejection_rate",
+   "fieldtype": "Percent",
+   "label": "Target Rejection Rate"
+  },
+  {
+   "fieldname": "column_break_qual_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "97",
+   "description": "Target shown alongside the Quality panel's Inspection Pass Rate actual.",
+   "fieldname": "target_inspection_pass_rate",
+   "fieldtype": "Percent",
+   "label": "Target Inspection Pass Rate"
+  },
+  {
+   "fieldname": "maintenance_targets_section",
+   "fieldtype": "Section Break",
+   "label": "Maintenance Targets"
+  },
+  {
+   "default": "90",
+   "description": "Target shown alongside the Maintenance panel's Planned Maintenance actual.",
+   "fieldname": "target_planned_maintenance",
+   "fieldtype": "Percent",
+   "label": "Target Planned Maintenance"
+  },
+  {
+   "fieldname": "column_break_maint_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "150",
+   "description": "Target Mean Time Between Failures shown alongside the Maintenance panel's MTBF actual - higher is better.",
+   "fieldname": "target_mtbf_hours",
+   "fieldtype": "Float",
+   "label": "Target MTBF (Hours)",
+   "non_negative": 1,
+   "precision": "1"
+  },
+  {
+   "fieldname": "column_break_maint_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "4",
+   "description": "Target Mean Time To Repair shown alongside the Maintenance panel's MTTR actual - lower is better, so the dashboard flags the actual only when it exceeds this.",
+   "fieldname": "target_mttr_hours",
+   "fieldtype": "Float",
+   "label": "Target MTTR (Hours)",
+   "non_negative": 1,
+   "precision": "1"
+  },
+  {
+   "fieldname": "safety_targets_section",
+   "fieldtype": "Section Break",
+   "label": "Safety"
+  },
+  {
+   "default": "200",
+   "description": "Total workforce man-hours worked per working day (headcount x shift hours) - the denominator LTIFR/TRIR are calculated against, prorated across the selected date range and Working Days per Week the same way Rated Melting Capacity is. This app has no Attendance/timesheet data to derive it from, so it's a direct input like the Capacity & OEE figures above.",
+   "fieldname": "man_hours_per_day",
+   "fieldtype": "Float",
+   "label": "Man-Hours per Day",
+   "non_negative": 1,
+   "precision": "1"
+  },
+  {
+   "fieldname": "column_break_safe_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0.5",
+   "description": "Target Lost Time Injury Frequency Rate (per 200,000 man-hours) shown alongside the Safety panel's LTIFR actual - lower is better, so the dashboard flags the actual only when it exceeds this.",
+   "fieldname": "target_ltifr",
+   "fieldtype": "Float",
+   "label": "Target LTIFR",
+   "non_negative": 1,
+   "precision": "2"
+  },
+  {
+   "default": "1",
+   "description": "Target Total Recordable Incident Rate (per 200,000 man-hours) shown alongside the Safety panel's TRIR actual - lower is better, so the dashboard flags the actual only when it exceeds this.",
+   "fieldname": "target_trir",
+   "fieldtype": "Float",
+   "label": "Target TRIR",
+   "non_negative": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_safe_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "40",
+   "description": "Target count of Safety Observations logged over the selected date range - higher is better, so the dashboard flags the actual only when it falls short of this.",
+   "fieldname": "target_safety_observations",
+   "fieldtype": "Int",
+   "label": "Target Safety Observations (Per Period)",
+   "non_negative": 1
+  }
+ ],
+ "icon": "fa fa-cog",
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-09-15 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Ittehadsteels",
+ "name": "Steel Dashboard Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,6 +1,7 @@
 """
 Placeholder data for dashboard sections that have no backing doctype yet
-(Quality, Maintenance, Safety, and a few efficiency gauges).
+(Quality, Maintenance, and Gross Margin - Safety moved off this file once
+Safety Incident landed, see steel_dashboard.py::get_safety()).
 
 This is the ONLY place in the dashboard that returns made-up numbers.
 When a real module/doctype is added for one of these, replace the matching
@@ -24,27 +25,6 @@ def get_maintenance():
 		"breakdown_hrs": 16.5,
 		"mtbf": 128,
 		"mttr": 2.6,
-	}
-
-
-def get_safety():
-	return {
-		"man_hours": 24560,
-		"ltifr": 0.41,
-		"trir": 0.82,
-		"observations": 46,
-		"status": "SAFE",
-	}
-
-
-def get_efficiency_gauges():
-	# capacity_utilization / conversion_yield / OEE need machine-hours and
-	# planned-vs-actual output data that isn't captured yet; rolling_mill_yield
-	# is already live (see dashboard.py::_rolling_mill_yield).
-	return {
-		"capacity_utilization": {"value": 78, "is_demo": 1},
-		"conversion_yield": {"value": 92, "is_demo": 1},
-		"oee": {"value": 72, "is_demo": 1},
 	}
 
 

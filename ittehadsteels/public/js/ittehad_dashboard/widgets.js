@@ -70,10 +70,52 @@ ittehad_dashboard.widgets = {
 		`);
 	},
 
+	// single-series line chart with real x-axis labels (dates, not a fixed
+	// "Mon"/"Tue" week) - e.g. Bank Balance, which can span anywhere from a
+	// week to a full year of daily points. Unlike sparkline() (always two
+	// 7-point series side by side), this draws one series over however many
+	// points it's given and thins the x-axis down to a handful of evenly
+	// spaced labels so they stay legible regardless of point count.
+	line($target, { labels, values }) {
+		if (!values || !values.length) {
+			$target.html(ittehad_dashboard.widgets.empty_state("No data for this period"));
+			return;
+		}
+		const max = Math.max(...values, 0);
+		const min = Math.min(...values, 0);
+		const range = max - min || 1;
+		const vb_w = 600,
+			vb_h = 160,
+			pad = 6;
+		const n = values.length;
+		const x = (i) => (n > 1 ? pad + (i / (n - 1)) * (vb_w - pad * 2) : vb_w / 2);
+		const y = (v) => vb_h - pad - ((v - min) / range) * (vb_h - pad * 2);
+		const points = values.map((v, i) => `${x(i)},${y(v)}`).join(" ");
+		const trend_color = values[values.length - 1] >= values[0] ? "var(--green)" : "var(--red)";
+		const label_count = Math.min(6, n);
+		const label_idx = Array.from({ length: label_count }, (_, i) =>
+			Math.round((i / (label_count - 1 || 1)) * (n - 1))
+		);
+		const axis = label_idx
+			.map((i) => `<span style="left:${(x(i) / vb_w) * 100}%">${labels[i]}</span>`)
+			.join("");
+		$target.html(`
+			<svg viewBox="0 0 ${vb_w} ${vb_h}" preserveAspectRatio="none" class="isd-line-chart">
+				<polyline points="${points}" fill="none" stroke="${trend_color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+			</svg>
+			<div class="isd-line-axis">${axis}</div>
+		`);
+	},
+
 	// donut chart built from a CSS conic-gradient, with a centered total label
 	donut($target, { items, value_key, label_key, total_label, colors }) {
 		colors = colors || ["var(--blue)", "var(--green)", "var(--orange)", "var(--purple)", "var(--gold)"];
-		if (!items || !items.length) {
+		// Every item at 0 (e.g. no Sales Orders at all in range) needs the
+		// same empty state as no items: with every slice's width at 0%, the
+		// gradient has no color stop before 100% and conic-gradient fills the
+		// whole circle with the LAST item's color - a full ring that reads as
+		// "100% <last category>" instead of "no data".
+		if (!items || !items.length || !items.some((it) => it[value_key])) {
 			$target.html(ittehad_dashboard.widgets.empty_state("No data for this period"));
 			return;
 		}
@@ -195,6 +237,39 @@ ittehad_dashboard.widgets = {
 					<div class="isd-hbar-val">${frappe.format(it[value_key], { fieldtype: "Float", precision: 1 }, { only_value: 1 })}${unit_key && it[unit_key] ? " " + it[unit_key] : ""}</div>
 				</div>`
 				)
+				.join("")
+		);
+	},
+
+	// Ageing bar list (0-30/31-60/.../121-Above outstanding amount), e.g.
+	// Accounts Receivable/Payable Ageing. A horizontal bar list rather than
+	// hbars() or a donut: the 5 buckets are an inherently ORDERED progression
+	// (0-30 closer to due, 121-Above most overdue), and a fixed red->green
+	// severity ramp (not hbars()' arbitrary per-row palette) reads at a
+	// glance as "how bad is this", the way a real ageing report does.
+	// Amounts are shown in PKR M like every other money figure on this
+	// dashboard - a bucket like "140,020,262.00" doesn't scan nearly as fast
+	// as "140.02 M".
+	ageing($target, { items }) {
+		const severity = ["var(--green)", "#84cc16", "var(--gold)", "var(--orange)", "var(--red)"];
+		if (!items || !items.length || !items.some((it) => it.value)) {
+			$target.html(ittehad_dashboard.widgets.empty_state("No outstanding amount for this period"));
+			return;
+		}
+		const total = items.reduce((s, it) => s + it.value, 0) || 1;
+		const max = Math.max(...items.map((it) => it.value), 1);
+		$target.html(
+			items
+				.map((it, i) => {
+					const pct = Math.round((it.value / total) * 1000) / 10;
+					const value_m = frappe.format(it.value / 1_000_000, { fieldtype: "Float", precision: 2 }, { only_value: 1 });
+					return `
+					<div class="isd-ageing-row">
+						<div class="isd-ageing-bucket"><span class="isd-ageing-dot" style="background:${severity[i % severity.length]}"></span>${it.label}</div>
+						<div class="isd-ageing-track"><div class="isd-ageing-fill" style="width:${(it.value / max) * 100}%;background:${severity[i % severity.length]}"></div></div>
+						<div class="isd-ageing-val">PKR ${value_m} M<small>${pct}%</small></div>
+					</div>`;
+				})
 				.join("")
 		);
 	},

@@ -158,6 +158,11 @@
 .isd-row.kpis .isd-kpi:nth-child(-n+4) { grid-column: span 3; }
 .isd-row.kpis .isd-kpi:nth-child(n+5) { grid-column: span 4; }
 .isd-row.kpis-2 { grid-template-columns: repeat(2, 1fr); max-width: 560px; }
+/* Sales section's own KPI row: 6 cards, evenly 3 per row (unlike .kpis'
+ * 4-then-3 split, sized for the Dashboard section's 7). */
+.isd-row.kpis-3 { grid-template-columns: repeat(3, 1fr); }
+/* Finance section's own KPI row: 4 cards, one row. */
+.isd-row.kpis-4 { grid-template-columns: repeat(4, 1fr); }
 .isd-row.r2 { grid-template-columns: 1.2fr 1fr 1fr; }
 .isd-row.r2-trend { grid-template-columns: 1fr 1fr; }
 .isd-row.r2b { grid-template-columns: 1fr 1fr; }
@@ -192,15 +197,17 @@
 	.isd-nav a { justify-content: center; padding: 10px 0; }
 	.isd-row.kpis { grid-template-columns: repeat(2, 1fr); }
 	.isd-row.kpis-2 { max-width: none; }
+	.isd-row.kpis-3, .isd-row.kpis-4 { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 700px) {
-	.isd-row.kpis, .isd-row.kpis-2, .isd-row.r2, .isd-row.r2-trend, .isd-row.r2b, .isd-row.r2c { grid-template-columns: 1fr; }
+	.isd-row.kpis, .isd-row.kpis-2, .isd-row.kpis-3, .isd-row.kpis-4, .isd-row.r2, .isd-row.r2-trend, .isd-row.r2b, .isd-row.r2c { grid-template-columns: 1fr; }
 	.isd-row.kpis .isd-kpi { grid-column: span 1; }
 }
 
 .isd-card { background: var(--panel); border: 1px solid var(--panel-border); border-radius: 10px; padding: 14px 16px; min-width: 0; }
 .isd-card-title { font-size: 11px; letter-spacing: .6px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; font-weight: 700; }
 .isd-empty { color: var(--muted); font-size: 12px; display: flex; align-items: center; justify-content: center; height: 100%; min-height: 60px; }
+.isd-hidden { display: none !important; }
 
 /* ------------------------------------------------------------------ kpis */
 .isd-kpi { display: flex; flex-direction: column; gap: 10px; }
@@ -289,6 +296,13 @@
 .isd-hbar-fill { height: 100%; border-radius: 3px; }
 .isd-hbar-val { width: 80px; text-align: right; flex: 0 0 80px; white-space: nowrap; }
 
+/* Oldest Items - capped height (~6 rows) with its own scrollbar rather than
+ * growing the card to fit however many items get_oldest_items() returns. */
+.isd-oldest-items-chart { max-height: 230px; overflow-y: auto; padding-right: 8px; }
+.isd-oldest-items-chart::-webkit-scrollbar { width: 6px; }
+.isd-oldest-items-chart::-webkit-scrollbar-thumb { background: var(--panel-border); border-radius: 3px; }
+.isd-oldest-items-chart::-webkit-scrollbar-track { background: transparent; }
+
 /* ------------------------------------------------------- sales pies */
 .isd-sales-pie-row { display: flex; gap: 20px; margin-top: 16px; }
 .isd-sales-pie-row > div { flex: 1; min-width: 0; }
@@ -304,11 +318,117 @@
 	.isd-sales-pie-row { flex-direction: column; }
 }
 
+/* ----------------------------------------------------- profit and loss */
+.isd-pnl-summary { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-bottom: 18px; }
+.isd-pnl-stat { display: flex; flex-direction: column; gap: 4px; }
+.isd-pnl-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+.isd-pnl-value { font-size: 18px; font-weight: 700; }
+.isd-pnl-op { font-size: 18px; color: var(--muted); font-weight: 700; }
+.isd-negative { color: var(--red); }
+@media (max-width: 700px) {
+	.isd-pnl-op { display: none; }
+}
+
+/* ---------------------------------------------------------- line chart */
+/* Bank Balance - a single series over as many points as the date range
+ * holds (up to 365 for a full year), unlike sparkline()'s fixed 2x7-point
+ * comparison - see widgets.line(). */
+.isd-line-chart { width: 100%; height: 160px; display: block; }
+.isd-line-axis { position: relative; height: 16px; margin-top: 4px; }
+.isd-line-axis span { position: absolute; transform: translateX(-50%); font-size: 11px; color: var(--muted); white-space: nowrap; }
+.isd-line-axis span:first-child { transform: translateX(0); }
+.isd-line-axis span:last-child { transform: translateX(-100%); }
+
+/* --------------------------------------------------------------- ageing */
+/* AR/AP Ageing - see widgets.ageing(). Sized larger than a generic hbar row
+ * (taller track, bigger type) since each card carries only 5 rows total and
+ * this is the one figure on the whole dashboard a reader is likely to scan
+ * top-to-bottom for "how much is overdue and by how much". */
+.isd-ageing-total { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+.isd-ageing-total b { color: var(--text); font-size: 16px; margin-left: 6px; }
+.isd-ageing-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; font-size: 12.5px; }
+.isd-ageing-row:last-child { margin-bottom: 0; }
+.isd-ageing-bucket { width: 92px; flex: 0 0 92px; display: flex; align-items: center; gap: 7px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.isd-ageing-dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 9px; }
+.isd-ageing-track { flex: 1; background: rgba(255, 255, 255, .05); border-radius: 4px; height: 20px; position: relative; overflow: hidden; }
+.isd-ageing-fill { height: 100%; border-radius: 4px; min-width: 3px; }
+.isd-ageing-val { width: 130px; flex: 0 0 130px; text-align: right; white-space: nowrap; font-weight: 600; }
+.isd-ageing-val small { display: block; color: var(--muted); font-weight: 500; font-size: 11px; }
+@media (max-width: 700px) {
+	.isd-ageing-bucket { width: 64px; flex-basis: 64px; }
+	.isd-ageing-val { width: 90px; flex-basis: 90px; }
+}
+
 /* -------------------------------------------------------------- safety */
 .isd-safety-shield { width: 60px; height: 60px; margin: 4px auto 6px; display: block; }
 .isd-safety-status { text-align: center; }
 .isd-safety-status .ok { color: var(--green); font-weight: 700; font-size: 15px; letter-spacing: .5px; }
+.isd-safety-status .warn { color: var(--red); font-weight: 700; font-size: 15px; letter-spacing: .5px; }
 .isd-safety-status small { color: var(--muted); }
+.isd-safety-log-link { display: block; text-align: center; margin-top: 12px; font-size: 12px; font-weight: 600; color: var(--blue); text-decoration: none; }
+.isd-safety-log-link:hover { text-decoration: underline; }
+
+/* ------------------------------------------------------------- settings */
+.isd-settings-intro { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin-bottom: 14px; }
+.isd-settings-edit-link { display: inline-block; font-size: 12.5px; font-weight: 600; color: var(--blue); text-decoration: none; }
+.isd-settings-edit-link:hover { text-decoration: underline; }
+.isd-settings-save-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+.isd-settings-save-btn {
+	background: var(--blue); border: none; color: #fff; padding: 7px 16px; border-radius: 6px;
+	font-size: 12.5px; font-weight: 600; cursor: pointer;
+}
+.isd-settings-save-btn:hover { background: #2f6fed; }
+.isd-settings-save-btn:disabled { opacity: .6; cursor: not-allowed; }
+.isd-settings-saved-msg { font-size: 12px; color: var(--green); }
+.isd-settings-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.isd-settings-field:last-child { margin-bottom: 0; }
+.isd-settings-field-label { font-size: 11.5px; color: var(--muted); }
+.isd-settings-input {
+	background: var(--bg); border: 1px solid var(--panel-border); color: var(--text);
+	border-radius: 6px; padding: 7px 10px; font-size: 13px; width: 100%; box-sizing: border-box;
+}
+.isd-settings-input:focus { outline: none; border-color: var(--blue); }
+
+/* --------------------------------------------------------------- reports */
+.isd-report-cards { display: flex; flex-wrap: wrap; gap: 12px; }
+.isd-report-card {
+	flex: 1 1 140px; min-width: 120px; background: var(--panel); border: 1px solid var(--panel-border);
+	border-radius: 10px; padding: 16px 14px; text-align: center; cursor: pointer;
+	transition: border-color .15s, background .15s;
+}
+.isd-report-card:hover { border-color: var(--blue); }
+.isd-report-card.active { border-color: var(--blue); background: rgba(59, 130, 246, .1); }
+.isd-report-card-icon { width: 30px; height: 30px; margin: 0 auto 8px; color: var(--blue); }
+.isd-report-card-icon svg { width: 100%; height: 100%; }
+.isd-report-card-label { font-size: 12.5px; font-weight: 600; }
+
+.isd-report-toolbar { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--panel-border); }
+/* Same identity block (logo + company + title + date range/generated-on) as
+ * the PDF/print output - see export_report_pdf()/print_report() - so the
+ * on-screen report reads as the same document you'd get from either. */
+.isd-report-header { display: flex; align-items: center; gap: 12px; }
+.isd-report-logo { width: 44px; height: 44px; object-fit: contain; border-radius: 6px; background: #fff; padding: 3px; }
+.isd-report-company { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+.isd-report-range { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.isd-report-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.isd-report-search {
+	background: var(--bg); border: 1px solid var(--panel-border); color: var(--text);
+	border-radius: 6px; padding: 6px 10px; font-size: 12px; width: 160px;
+}
+.isd-report-print-btn, .isd-report-excel-btn, .isd-report-pdf-btn {
+	display: flex; align-items: center; gap: 6px;
+	background: var(--panel); border: 1px solid var(--panel-border); color: var(--text);
+	border-radius: 6px; padding: 6px 13px; font-size: 12px; font-weight: 600; cursor: pointer;
+	transition: border-color .15s, color .15s, background .15s;
+}
+.isd-report-print-btn svg, .isd-report-excel-btn svg, .isd-report-pdf-btn svg { width: 15px; height: 15px; flex: 0 0 15px; }
+.isd-report-print-btn:hover { border-color: var(--blue); color: var(--blue); }
+.isd-report-excel-btn:hover { border-color: var(--green); color: var(--green); }
+.isd-report-pdf-btn:hover { border-color: var(--red); color: var(--red); }
+@media (max-width: 700px) {
+	.isd-report-search { width: 100%; }
+	.isd-report-print-btn span, .isd-report-excel-btn span, .isd-report-pdf-btn span { display: none; }
+}
 
 .isd-footnote { flex-shrink: 0; color: var(--muted); font-size: 11px; padding: 10px 22px 20px; border-top: 1px solid var(--panel-border); }
 .isd-demo-tag { font-size: 9px; color: var(--muted); background: rgba(255, 255, 255, .06); border-radius: 4px; padding: 1px 5px; margin-left: 6px; }

@@ -31,6 +31,12 @@ ittehad_dashboard.icons = {
 	doc: `<svg viewBox="0 0 24 24" fill="none"><path d="M6 2h9l4 4v16H6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12h7M9 16h7M9 8h3" stroke="currentColor" stroke-width="1.4"/></svg>`,
 	gear: `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>`,
 	download: `<svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 19h16" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+	// Reports toolbar (Print/Export Excel/Export PDF) - excel/pdf share doc's
+	// own page-outline path so the three read as one family, differentiated
+	// by what's drawn inside: a spreadsheet grid vs. a download-into-page arrow.
+	print: `<svg viewBox="0 0 24 24" fill="none"><path d="M6 9V3h12v6" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><rect x="4" y="9" width="16" height="8" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="7" y="14" width="10" height="7" fill="currentColor"/><circle cx="17" cy="12" r="1" fill="currentColor"/></svg>`,
+	excel: `<svg viewBox="0 0 24 24" fill="none"><path d="M6 2h9l4 4v16H6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 11h8M8 14h8M8 17h8M11 11v6M14 11v6" stroke="currentColor" stroke-width="1.1"/></svg>`,
+	pdf: `<svg viewBox="0 0 24 24" fill="none"><path d="M6 2h9l4 4v16H6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 9.5v6m0 0l-2.3-2.3M12 15.5l2.3-2.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
 };
 
 ittehad_dashboard.icon = function (name) {
