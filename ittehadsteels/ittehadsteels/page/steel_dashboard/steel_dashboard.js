@@ -1179,15 +1179,33 @@ class IttehadDashboard {
 				data.ap_ageing.forEach((r) => detail(r.label, frappe.format(r.value, { fieldtype: "Currency" }, { only_value: 1 })));
 			}
 		} else if (key === "production") {
-			section("Production Metrics");
-			kpi_rows();
-			section("Production by Product");
-			(data.production_by_product || []).forEach((r) => detail(r.label, `${r.qty_mt} Ton (${r.pct}%)`));
-			section("Efficiency Gauges");
-			detail("Capacity Utilization", gauge("capacity_utilization"));
-			detail("Conversion Yield", gauge("conversion_yield"));
-			detail("Rolling Mill Yield", gauge("rolling_mill_yield"));
-			detail("OEE", gauge("oee"));
+			// The real Production And Cost Report - see
+			// get_production_and_cost_statement() (reuses the actual
+			// Production And Cost Report script report, same Direct/Indirect
+			// Expense chart-of-accounts breakdown /app/query-report/Production
+			// And Cost Report shows). Falls back to the old flat metrics below
+			// if there's no default Company.
+			const pc_rows = data.production_and_cost_statement || [];
+			if (pc_rows.length) {
+				section("Production And Cost Report");
+				pc_rows.forEach((r) => {
+					const parts = [];
+					if (r.qty) parts.push(`${frappe.format(r.qty, { fieldtype: "Float", precision: 2 }, { only_value: 1 })} Ton`);
+					if (r.amount) parts.push(frappe.format(r.amount, { fieldtype: "Currency" }, { only_value: 1 }));
+					if (r.rate) parts.push(`Per Ton: ${frappe.format(r.rate, { fieldtype: "Currency" }, { only_value: 1 })}`);
+					rows.push({ label: r.label, value: parts.join("  |  "), indent: r.indent + 1, bold: r.bold });
+				});
+			} else {
+				section("Production Metrics");
+				kpi_rows();
+				section("Production by Product");
+				(data.production_by_product || []).forEach((r) => detail(r.label, `${r.qty_mt} Ton (${r.pct}%)`));
+				section("Efficiency Gauges");
+				detail("Capacity Utilization", gauge("capacity_utilization"));
+				detail("Conversion Yield", gauge("conversion_yield"));
+				detail("Rolling Mill Yield", gauge("rolling_mill_yield"));
+				detail("OEE", gauge("oee"));
+			}
 		} else if (key === "sales") {
 			section("Sales Metrics");
 			kpi_rows();

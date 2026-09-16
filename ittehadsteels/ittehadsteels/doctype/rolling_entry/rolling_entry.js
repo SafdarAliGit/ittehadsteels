@@ -77,7 +77,7 @@ frappe.ui.form.on("Raw Items", {
 });
 
 frappe.ui.form.on("Finish Items", {
-	qty_kgs: function (frm) {
+	qty_ton: function (frm) {
 		calculate_total_finish_qty(frm);
 	},
 
@@ -139,24 +139,23 @@ function calculate_total_raw_material_amount(frm) {
 		total_amount += flt(row.amount);
 	});
 	frm.set_value("total_raw_material_amount", total_amount);
-	calculate_cost_per_kg(frm);
+	calculate_cost_per_ton(frm);
 }
 
 function calculate_total_finish_qty(frm) {
 	let total_qty = 0;
 	(frm.doc.finish_items || []).forEach((row) => {
-		total_qty += flt(row.qty_kgs);
+		total_qty += flt(row.qty_ton);
 	});
 	frm.set_value("total_finish_qty", total_qty);
-	calculate_cost_per_kg(frm);
+	calculate_cost_per_ton(frm);
 }
 
-function calculate_cost_per_kg(frm) {
-	let cost_per_kg = frm.doc.total_finish_qty
+function calculate_cost_per_ton(frm) {
+	let cost_per_ton = frm.doc.total_finish_qty
 		? flt(frm.doc.total_raw_material_amount) / flt(frm.doc.total_finish_qty)
 		: 0;
-	frm.set_value("cost_per_kg", cost_per_kg);
-	frm.set_value("cost_per_ton", flt(cost_per_kg) / 1000);
+	frm.set_value("cost_per_ton", cost_per_ton);
 }
 
 function calculate_consumable_amount(frm, cdt, cdn) {

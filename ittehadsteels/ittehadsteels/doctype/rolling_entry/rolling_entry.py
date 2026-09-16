@@ -13,7 +13,7 @@ FINISH_ITEM_BATCH_FIELD_MAP = [
 	("grade", "grade"),
 	("length", "length"),
 	("guage", "guage"),
-	("qty_kgs", "batch_qty"),
+	("qty_ton", "batch_qty"),
 	("qty_pcs", "qty_in_pcs"),
 ]
 
@@ -32,10 +32,9 @@ class RollingEntry(Document):
 	def calculate_totals(self):
 		self.total_issue_qty = sum(flt(row.issue_qty) for row in self.get("raw_items"))
 		self.total_raw_material_amount = sum(flt(row.amount) for row in self.get("raw_items"))
-		self.total_finish_qty = sum(flt(row.qty_kgs) for row in self.get("finish_items"))
+		self.total_finish_qty = sum(flt(row.qty_ton) for row in self.get("finish_items"))
 
-		self.cost_per_kg = flt(self.total_raw_material_amount) / self.total_finish_qty if self.total_finish_qty else 0
-		self.cost_per_ton = flt(self.cost_per_kg) / 1000
+		self.cost_per_ton = flt(self.total_raw_material_amount) / self.total_finish_qty if self.total_finish_qty else 0
 
 	def create_batches_for_finish_items(self):
 		rows = [row for row in self.get("finish_items") if row.item_code]
@@ -128,8 +127,8 @@ class RollingEntry(Document):
 				{
 					"item_code": row.item_code,
 					"t_warehouse": row.warehouse,
-					"qty": flt(row.qty_kgs),
-					"basic_rate": flt(self.cost_per_kg),
+					"qty": flt(row.qty_ton),
+					"basic_rate": flt(self.cost_per_ton),
 					"use_serial_batch_fields":1,
 					"batch_no": row.batch,
 					"is_finish_item":1,

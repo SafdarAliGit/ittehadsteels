@@ -865,6 +865,55 @@ def get_profit_and_loss_statement(from_date, to_date):
 	return rows
 
 
+def get_production_and_cost_statement(from_date, to_date):
+	"""Production Report's hierarchical breakdown - reuses the actual
+	Production And Cost Report (see
+	ittehadsteels.ittehadsteels.report.production_and_cost_report), the same
+	Finish Item Production/Raw Material/Direct & Indirect Expense (full
+	chart-of-accounts breakdown)/Margin figures /app/query-report/Production
+	And Cost Report shows, instead of re-deriving those numbers here. Same
+	{label, indent, is_group, bold, qty, amount, rate} shape as
+	get_profit_and_loss_statement() (one row per line, qty/amount/rate left
+	as raw numbers for the frontend to format, the way it already formats
+	every other KPI value).
+	Empty if there's no default Company - same "front end shows empty state"
+	precedent as the Profit and Loss Statement above."""
+	company = frappe.defaults.get_global_default("company")
+	if not company:
+		return []
+
+	try:
+		from ittehadsteels.ittehadsteels.report.production_and_cost_report.production_and_cost_report import (
+			get_data,
+		)
+
+		filters = frappe._dict({"company": company, "from_date": from_date, "to_date": to_date})
+		report_rows = get_data(filters)
+	except Exception:
+		frappe.log_error(title="Steel Dashboard: Production and Cost Report")
+		return []
+
+	rows = []
+	for row in report_rows:
+		label = row.get("particulars") or ""
+		bold = label.startswith("<b>") and label.endswith("</b>")
+		if bold:
+			label = label[3:-4]
+
+		rows.append(
+			{
+				"label": label,
+				"indent": cint(row.get("indent", 0)),
+				"is_group": bold,
+				"bold": bold,
+				"qty": flt(row.get("qty", 0), 2),
+				"amount": flt(row.get("amount", 0), 2),
+				"rate": flt(row.get("rate", 0), 2),
+			}
+		)
+	return rows
+
+
 def get_profit_and_loss_trend(from_date, to_date, prev_from, prev_to):
 	"""Month-bucketed Profit (Income - Expense, PKR M) trend, this period vs
 	last - drawn with the same trend_card_html()/bars()+sparkline() widgets
@@ -1521,6 +1570,7 @@ def get_dashboard_data(from_date, to_date):
 		"sales_order_billing_split": get_sales_order_billing_split(from_date, to_date),
 		"profit_and_loss": get_profit_and_loss(from_date, to_date),
 		"profit_and_loss_statement": get_profit_and_loss_statement(from_date, to_date),
+		"production_and_cost_statement": get_production_and_cost_statement(from_date, to_date),
 		"profit_and_loss_trend": get_profit_and_loss_trend(from_date, to_date, prev_from, prev_to),
 		"incoming_bills_trend": get_incoming_bills_trend(from_date, to_date, prev_from, prev_to),
 		"outgoing_bills_trend": get_outgoing_bills_trend(from_date, to_date, prev_from, prev_to),

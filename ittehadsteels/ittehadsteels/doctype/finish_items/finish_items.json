@@ -7,7 +7,7 @@
  "field_order": [
   "item_code",
   "grade",
-  "qty_kgs",
+  "qty_ton",
   "qty_pcs",
   "length",
   "guage",
@@ -41,10 +41,10 @@
   },
   {
    "columns": 2,
-   "fieldname": "qty_kgs",
+   "fieldname": "qty_ton",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Qty Kgs",
+   "label": "Qty Ton",
    "non_negative": 1
   },
   {

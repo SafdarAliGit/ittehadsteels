@@ -32,7 +32,6 @@
   "section_break_consumables",
   "consumables",
   "section_break_cost",
-  "cost_per_kg",
   "column_break_cost1",
   "cost_per_ton",
   "workday_closing_entry",
@@ -147,20 +146,12 @@
    "label": "Cost Summary"
   },
   {
-   "default": "0",
-   "description": "Total Raw Material Amount / Total Finish Qty",
-   "fieldname": "cost_per_kg",
-   "fieldtype": "Currency",
-   "label": "Cost Per Kg",
-   "read_only": 1
-  },
-  {
    "fieldname": "column_break_cost1",
    "fieldtype": "Column Break"
   },
   {
    "default": "0",
-   "description": "Cost Per Kg / 1000",
+   "description": "Total Raw Material Amount / Total Finish Qty",
    "fieldname": "cost_per_ton",
    "fieldtype": "Currency",
    "label": "Cost Per Ton",
@@ -223,7 +214,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-09-03 22:11:56.235621",
+ "modified": "2026-09-16 16:26:41.478703",
  "modified_by": "Administrator",
  "module": "Ittehadsteels",
  "name": "Rolling Entry",

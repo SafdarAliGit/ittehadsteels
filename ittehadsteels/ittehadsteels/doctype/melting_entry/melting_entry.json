@@ -20,12 +20,11 @@
   "batch_status",
   "section_break_finish",
   "finish_items",
-  "section_break_gen2",
-  "total_output_weight",
   "section_break_raw_material",
   "raw_material_consumption",
   "section_break_summary",
   "total_input_weight",
+  "total_output_weight",
   "total_input_amount",
   "finish_rate",
   "column_break_eb7n",
@@ -113,10 +112,6 @@
    "fieldtype": "Select",
    "label": "Batch Status",
    "options": "Active\nInactive"
-  },
-  {
-   "fieldname": "section_break_gen2",
-   "fieldtype": "Section Break"
   },
   {
    "fieldname": "remarks",
@@ -250,7 +245,7 @@
    "default": "0",
    "fieldname": "total_output_weight",
    "fieldtype": "Float",
-   "label": "Total Output Weight ",
+   "label": "Total Output Weight",
    "read_only": 1
   },
   {
